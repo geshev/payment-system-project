@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 
 import 'bootstrap/dist/css/bootstrap.css';
+import "./globals.css";
+
+import Header from "@/components/header";
 
 export const metadata: Metadata = {
   title: "Payment system",
@@ -11,6 +14,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body>
+        <Header />
         {children}
       </body>
     </html>
