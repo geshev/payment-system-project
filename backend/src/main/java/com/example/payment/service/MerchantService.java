@@ -29,10 +29,12 @@ public class MerchantService {
     private void loadMerchants() throws IOException {
         List<MerchantCreation> merchants = CSVUtils.loadCSV("data/merchants.csv", MerchantCreation.class);
         merchants.forEach(merchantCreation -> {
-            if (!merchantRepository.existsByNameAndEmail(merchantCreation.getName(), merchantCreation.getEmail())
-                    && accountService.accountExists(merchantCreation.getUsername())) {
+            if (!merchantRepository.existsByNameAndEmail(merchantCreation.getName(), merchantCreation.getEmail())) {
                 Merchant merchant = merchantMapper.fromMerchantCreation(merchantCreation);
                 merchantRepository.save(merchant);
+                if (accountService.accountExists(merchantCreation.getUsername())) {
+                    accountService.addMerchantToAccount(merchantCreation.getUsername(), merchant);
+                }
             }
         });
     }

@@ -35,6 +35,9 @@ public class Account implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @OneToOne
+    private Merchant merchant;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

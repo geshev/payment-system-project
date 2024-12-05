@@ -1,6 +1,7 @@
 package com.example.payment.service;
 
 import com.example.payment.data.model.Account;
+import com.example.payment.data.model.Merchant;
 import com.example.payment.data.repo.AccountRepository;
 import com.example.payment.util.CSVUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,6 +37,12 @@ public class AccountService {
 
     public boolean accountExists(String username) {
         return accountRepository.existsByUsername(username);
+    }
+
+    void addMerchantToAccount(String username, Merchant merchant) {
+        Account account = accountRepository.findByUsername(username).orElseThrow();
+        account.setMerchant(merchant);
+        accountRepository.save(account);
     }
 
     public String getAccountRole(String username) {
