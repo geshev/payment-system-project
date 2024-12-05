@@ -39,4 +39,9 @@ public class AccountService {
             accountRepository.save(merchant);
         }
     }
+
+    public String getAccountRole(String username) {
+        Account account = accountRepository.findByUsername(username).orElseThrow();
+        return account.getRole().name();
+    }
 }

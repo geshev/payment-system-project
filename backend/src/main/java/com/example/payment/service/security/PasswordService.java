@@ -1,6 +1,5 @@
 package com.example.payment.service.security;
 
-import com.example.payment.data.mapper.UserDetailMapper;
 import com.example.payment.data.model.Account;
 import com.example.payment.data.repo.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +14,10 @@ import java.util.Optional;
 @Transactional
 public class PasswordService implements UserDetailsPasswordService {
 
-    private final UserDetailMapper userDetailMapper;
     private final AccountRepository accountRepository;
 
     @Autowired
-    public PasswordService(UserDetailMapper userDetailMapper, AccountRepository accountRepository) {
-        this.userDetailMapper = userDetailMapper;
+    public PasswordService(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
     }
 
@@ -33,6 +30,6 @@ public class PasswordService implements UserDetailsPasswordService {
         }
         Account account = accountOpt.get();
         account.setPassword(newPassword);
-        return userDetailMapper.toUserDetails(account);
+        return account;
     }
 }

@@ -1,17 +1,24 @@
 package com.example.payment.config.security;
 
+import com.example.payment.filter.security.JwtTokenFilter;
 import com.example.payment.service.security.PasswordService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.sql.DataSource;
+
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
 @EnableWebSecurity
@@ -19,11 +26,14 @@ public class SecurityConfig {
 
     private final DataSource dataSource;
     private final PasswordEncoder passwordEncoder;
+    private final JwtTokenFilter jwtTokenFilter;
     private final PasswordService passwordService;
 
-    public SecurityConfig(DataSource dataSource, PasswordEncoder passwordEncoder, PasswordService passwordService) {
+    public SecurityConfig(DataSource dataSource, PasswordEncoder passwordEncoder, JwtTokenFilter jwtTokenFilter,
+                          PasswordService passwordService) {
         this.dataSource = dataSource;
         this.passwordEncoder = passwordEncoder;
+        this.jwtTokenFilter = jwtTokenFilter;
         this.passwordService = passwordService;
     }
 
@@ -39,12 +49,18 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests((auth) -> auth
-                        .requestMatchers(HttpMethod.GET, "/**").authenticated()
+        http
+                .cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(sm -> sm.sessionCreationPolicy(STATELESS))
+                .exceptionHandling(c -> c.authenticationEntryPoint(
+                        (request, response, ex) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, null)
+                ))
+                .authorizeHttpRequests((auth) -> auth
+                        .requestMatchers(HttpMethod.POST, "/auth/token").permitAll()
+                        .anyRequest().authenticated()
                 )
-                .formLogin(login ->
-                        login.defaultSuccessUrl("/", true)
-                );
+                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }
