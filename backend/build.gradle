@@ -30,6 +30,7 @@ dependencies {
 	implementation 'org.postgresql:postgresql'
 	implementation 'org.mapstruct:mapstruct:1.6.2'
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+	implementation 'com.opencsv:opencsv:5.9'
 
 	compileOnly 'org.projectlombok:lombok'
 

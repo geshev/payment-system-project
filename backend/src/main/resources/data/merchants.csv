@@ -1,0 +1,5 @@
+username,name,description,email,status
+merchant,"The merchant","This the merchant",merchant@merchant.com,ACTIVE
+merchant1,"The ONE merchant","This the merchant 11",merchant1@merchant.com,ACTIVE
+merchant2,"The SECOND merchant","This the merchant 22",merchant2@merchant.com,ACTIVE
+merchant3,"The THIRD merchant","This the merchant 33",merchant3@merchant.com,ACTIVE

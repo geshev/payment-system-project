@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MerchantRepository extends JpaRepository<Merchant, Long> {
+
+    boolean existsByNameAndEmail(String name, String email);
 }
