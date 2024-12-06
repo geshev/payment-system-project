@@ -1,7 +1,12 @@
-async function getData(request: string) {
+async function getData(request: string, auth: string) {
   let response;
   try {
-    response = await fetch(request, { cache: 'no-store' });
+    response = await fetch(request, {
+      headers: {
+        'Authorization': `Bearer ${auth}`
+      },
+      cache: 'no-store'
+    });
     if (!response.ok) {
       throw Error("Fetch response: " + response.status);
     }
@@ -9,6 +14,11 @@ async function getData(request: string) {
     throw Error("Fetch error: " + e);
   }
   return response;
+}
+
+export async function getDataJSON(request: string, auth: string) {
+  const response = await getData(request, auth);
+  return response.json();
 }
 
 async function postData(request: string, data: any) {

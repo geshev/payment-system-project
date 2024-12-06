@@ -1,7 +1,7 @@
 "use server";
 
 import { authenticate, removeAuthentication } from "@/service/auth-service";
-import { redirect } from "next/navigation";
+import { redirect, RedirectType } from "next/navigation";
 
 export async function loginAction(formData: FormData) {
   await authenticate(formData.get("username"), formData.get("password"));

@@ -1,4 +1,4 @@
-package com.example.payment.data.dto;
+package com.example.payment.data.dto.merchant;
 
 import com.example.payment.data.model.MerchantStatus;
 import lombok.Getter;

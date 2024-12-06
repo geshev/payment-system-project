@@ -1,6 +1,7 @@
 package com.example.payment.service;
 
-import com.example.payment.data.dto.MerchantCreation;
+import com.example.payment.data.dto.merchant.MerchantCreation;
+import com.example.payment.data.dto.merchant.MerchantInfo;
 import com.example.payment.data.mapper.MerchantMapper;
 import com.example.payment.data.model.Merchant;
 import com.example.payment.data.repo.MerchantRepository;
@@ -37,5 +38,9 @@ public class MerchantService {
                 }
             }
         });
+    }
+
+    public List<MerchantInfo> getMerchants() {
+        return merchantRepository.findAll().stream().map(merchantMapper::toInfo).toList();
     }
 }
