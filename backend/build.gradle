@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.4.0'
 	id 'io.spring.dependency-management' version '1.1.6'
+	id 'checkstyle'
 }
 
 group = 'com.example'
@@ -13,9 +14,20 @@ java {
 	}
 }
 
+checkstyle {
+	toolVersion = "10.12.4"
+	configFile = file("config/checkstyle/sun_checks.xml")
+}
+
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
+	}
+}
+
+configurations.checkstyle {
+	resolutionStrategy.capabilitiesResolution.withCapability("com.google.collections:google-collections") {
+		select("com.google.guava:guava:0")
 	}
 }
 
