@@ -5,6 +5,7 @@ import com.example.payment.data.dto.merchant.MerchantInfo;
 import com.example.payment.data.mapper.MerchantMapper;
 import com.example.payment.data.model.Merchant;
 import com.example.payment.data.repo.MerchantRepository;
+import com.example.payment.error.exception.MerchantNotFoundException;
 import com.example.payment.util.CSVUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,5 +44,9 @@ public class MerchantService {
 
     public List<MerchantInfo> getMerchants() {
         return merchantRepository.findAll().stream().map(merchantMapper::toInfo).toList();
+    }
+
+    public MerchantInfo getMerchant(final Long id) throws MerchantNotFoundException {
+        return merchantMapper.toInfo(merchantRepository.findById(id).orElseThrow(MerchantNotFoundException::new));
     }
 }

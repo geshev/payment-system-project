@@ -9,7 +9,7 @@ export default async function Home() {
     const row =
       <tr key={index}>
         <th scope="row">{++index}</th>
-        <td>{merchant.name}</td>
+        <td><a href={`merchants/${index}`}>{merchant.name}</a></td>
         <td>{merchant.description}</td>
         <td>{merchant.email}</td>
         <td>{merchant.status}</td>

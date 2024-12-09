@@ -1,8 +1,10 @@
 package com.example.payment.controller;
 
 import com.example.payment.data.dto.merchant.MerchantInfo;
+import com.example.payment.error.exception.MerchantNotFoundException;
 import com.example.payment.service.MerchantService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,5 +23,10 @@ public class MerchantController {
     @GetMapping
     public List<MerchantInfo> getMerchants() {
         return merchantService.getMerchants();
+    }
+
+    @GetMapping("{id}")
+    public MerchantInfo getMerchant(@PathVariable final Long id) throws MerchantNotFoundException {
+        return merchantService.getMerchant(id);
     }
 }

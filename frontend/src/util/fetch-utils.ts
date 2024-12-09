@@ -1,17 +1,18 @@
+import { notFound, redirect } from "next/navigation";
+
 async function getData(request: string, auth: string) {
-  let response;
-  try {
-    response = await fetch(request, {
-      headers: {
-        'Authorization': `Bearer ${auth}`
-      },
-      cache: 'no-store'
-    });
-    if (!response.ok) {
-      throw Error("Fetch response: " + response.status);
+  const response = await fetch(request, {
+    headers: {
+      'Authorization': `Bearer ${auth}`
+    },
+    cache: 'no-store'
+  });
+  if (!response.ok) {
+    if (response.status == 404) {
+      notFound();
+    } else {
+      redirect("/error");
     }
-  } catch (e) {
-    throw Error("Fetch error: " + e);
   }
   return response;
 }
@@ -22,21 +23,20 @@ export async function getDataJSON(request: string, auth: string) {
 }
 
 async function postData(request: string, data: any) {
-  let response;
-  try {
-    response = await fetch(request, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-      cache: 'no-store'
-    });
-    if (!response.ok) {
-      throw Error("Fetch response: " + response.status);
+  const response = await fetch(request, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+    cache: 'no-store'
+  });
+  if (!response.ok) {
+    if (response.status == 404) {
+      notFound();
+    } else {
+      redirect("/error");
     }
-  } catch (e) {
-    throw Error("Fetch error: " + e);
   }
   return response;
 }
