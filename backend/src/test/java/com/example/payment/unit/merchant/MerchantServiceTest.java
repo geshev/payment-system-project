@@ -15,16 +15,20 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class MerchantServiceTest {
 
     private static final String TEST_MERCHANT_NAME = "TEST MERCHANT";
     private static final Merchant TEST_MERCHANT = new Merchant();
+
     static {
         TEST_MERCHANT.setName(TEST_MERCHANT_NAME);
     }
+
     private static final MerchantInfo TEST_MERCHANT_INFO = new MerchantInfo(TEST_MERCHANT_NAME, null, null, null, null);
     private static final List<Merchant> TEST_MERCHANTS = List.of(TEST_MERCHANT, TEST_MERCHANT, TEST_MERCHANT);
 
@@ -41,7 +45,7 @@ public class MerchantServiceTest {
     private MerchantService merchantService;
 
     @Test
-    public void testGetMerchants() {
+    void testGetMerchants() {
         when(merchantRepository.findAll()).thenReturn(TEST_MERCHANTS);
         when(merchantMapper.toInfo(TEST_MERCHANT)).thenReturn(TEST_MERCHANT_INFO);
 

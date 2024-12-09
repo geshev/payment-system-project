@@ -20,7 +20,8 @@ public class MerchantService {
     private final MerchantMapper merchantMapper;
     private final AccountService accountService;
 
-    public MerchantService(MerchantRepository merchantRepository, MerchantMapper merchantMapper, AccountService accountService) throws IOException {
+    public MerchantService(final MerchantRepository merchantRepository, final MerchantMapper merchantMapper,
+                           final AccountService accountService) throws IOException {
         this.merchantRepository = merchantRepository;
         this.merchantMapper = merchantMapper;
         this.accountService = accountService;

@@ -17,13 +17,13 @@ public class JwtService {
     private final SecretKey secretKey;
     private final long expiration;
 
-    JwtService(@Value("${security.jwt.secret-key}") String secretKey,
-               @Value("${security.jwt.expiration}") long expiration) {
+    JwtService(@Value("${security.jwt.secret-key}") final String secretKey,
+               @Value("${security.jwt.expiration}") final long expiration) {
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
         this.expiration = expiration;
     }
 
-    public String generateToken(Map<String, ?> extraClaims, String username) {
+    public String generateToken(final Map<String, ?> extraClaims, final String username) {
         return Jwts.builder()
                 .claims(extraClaims)
                 .subject(username)
@@ -33,7 +33,7 @@ public class JwtService {
                 .compact();
     }
 
-    public String validateTokenGetUsername(String token) {
+    public String validateTokenGetUsername(final String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(secretKey)
                 .build()

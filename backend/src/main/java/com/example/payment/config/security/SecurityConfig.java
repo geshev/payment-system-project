@@ -30,8 +30,8 @@ public class SecurityConfig {
     private final JwtTokenFilter jwtTokenFilter;
     private final PasswordService passwordService;
 
-    public SecurityConfig(DataSource dataSource, PasswordEncoder passwordEncoder, JwtTokenFilter jwtTokenFilter,
-                          PasswordService passwordService) {
+    public SecurityConfig(final DataSource dataSource, final PasswordEncoder passwordEncoder,
+                   final JwtTokenFilter jwtTokenFilter, final PasswordService passwordService) {
         this.dataSource = dataSource;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenFilter = jwtTokenFilter;
@@ -39,7 +39,7 @@ public class SecurityConfig {
     }
 
     @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+    public void configureGlobal(final AuthenticationManagerBuilder auth) throws Exception {
         auth.jdbcAuthentication()
                 .dataSource(dataSource)
                 .passwordEncoder(passwordEncoder)
@@ -49,7 +49,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
         http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)

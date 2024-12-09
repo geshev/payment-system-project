@@ -15,12 +15,12 @@ public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
 
-    public AuthenticationController(AuthenticationService authenticationService) {
+    public AuthenticationController(final AuthenticationService authenticationService) {
         this.authenticationService = authenticationService;
     }
 
     @PostMapping("token")
-    public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> authenticate(@RequestBody final LoginRequest loginRequest) {
         return ResponseEntity.ok(authenticationService.authenticate(loginRequest));
     }
 }

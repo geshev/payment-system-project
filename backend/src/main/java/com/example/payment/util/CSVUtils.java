@@ -11,7 +11,7 @@ import java.util.List;
 
 public class CSVUtils {
 
-    public static <T> List<T> loadCSV(String file, Class<T> type) throws IOException {
+    public static <T> List<T> loadCSV(final String file, final Class<T> type) throws IOException {
         ClassPathResource resource = new ClassPathResource(file);
         try (Reader reader = new FileReader(resource.getFile())) {
             CsvToBean<T> csvToBean = new CsvToBeanBuilder<T>(reader)

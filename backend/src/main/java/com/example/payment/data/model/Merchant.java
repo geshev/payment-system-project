@@ -27,7 +27,7 @@ public class Merchant {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private MerchantStatus status;
 

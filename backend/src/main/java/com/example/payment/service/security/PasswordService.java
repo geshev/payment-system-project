@@ -17,12 +17,12 @@ public class PasswordService implements UserDetailsPasswordService {
     private final AccountRepository accountRepository;
 
     @Autowired
-    public PasswordService(AccountRepository accountRepository) {
+    public PasswordService(final AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
     }
 
     @Override
-    public UserDetails updatePassword(UserDetails user, String newPassword) {
+    public UserDetails updatePassword(final UserDetails user, final String newPassword) {
         Optional<Account> accountOpt = accountRepository.findByUsername(user.getUsername());
         if (accountOpt.isEmpty()) {
             throw new RuntimeException("Cannot update the password for " + user.getUsername()

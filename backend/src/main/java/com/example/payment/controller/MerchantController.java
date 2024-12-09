@@ -14,7 +14,7 @@ public class MerchantController {
 
     private final MerchantService merchantService;
 
-    public MerchantController(MerchantService merchantService) {
+    public MerchantController(final MerchantService merchantService) {
         this.merchantService = merchantService;
     }
 

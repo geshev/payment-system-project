@@ -31,7 +31,7 @@ public class Account implements UserDetails {
     @Column(nullable = false)
     private boolean enabled;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
 

@@ -31,7 +31,7 @@ public class SecurityUtilsConfig {
 
     private final AccountRepository accountRepository;
 
-    public SecurityUtilsConfig(AccountRepository accountRepository) {
+    public SecurityUtilsConfig(final AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
     }
 
@@ -42,12 +42,12 @@ public class SecurityUtilsConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    public AuthenticationManager authenticationManager(final AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 

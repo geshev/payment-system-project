@@ -29,14 +29,15 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
-    public JwtTokenFilter(JwtService jwtService, UserDetailsService userDetailsService) {
+    public JwtTokenFilter(final JwtService jwtService, final UserDetailsService userDetailsService) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
     }
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull final HttpServletRequest request,
+                                    @NonNull final HttpServletResponse response,
+                                    @NonNull final FilterChain filterChain) throws ServletException, IOException {
         final String authHeader = request.getHeader(AUTHORIZATION_HEADER);
         if (!StringUtils.hasLength(authHeader) || !authHeader.startsWith(BEARER_AUTHORIZATION)) {
             filterChain.doFilter(request, response);

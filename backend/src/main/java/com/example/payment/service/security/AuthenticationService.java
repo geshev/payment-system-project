@@ -22,13 +22,14 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final AccountService accountService;
 
-    public AuthenticationService(JwtService jwtService, AuthenticationManager authenticationManager, AccountService accountService) {
+    public AuthenticationService(final JwtService jwtService, final AuthenticationManager authenticationManager,
+                                 final AccountService accountService) {
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
         this.accountService = accountService;
     }
 
-    public LoginResponse authenticate(LoginRequest loginRequest) {
+    public LoginResponse authenticate(final LoginRequest loginRequest) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()));
 

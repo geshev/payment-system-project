@@ -1,4 +1,4 @@
-package com.example.payment;
+package com.example.payment.integration;
 
 import com.example.payment.controller.security.AuthenticationController;
 import org.junit.jupiter.api.Test;
@@ -10,15 +10,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 class PaymentApplicationTests {
 
-	private final AuthenticationController authenticationController;
+    private final AuthenticationController authenticationController;
 
     @Autowired
-    PaymentApplicationTests(AuthenticationController authenticationController) {
+    PaymentApplicationTests(final AuthenticationController authenticationController) {
         this.authenticationController = authenticationController;
     }
 
     @Test
-	void contextLoads() {
-		assertThat(authenticationController).isNotNull();
-	}
+    void contextLoads() {
+        assertThat(authenticationController).isNotNull();
+    }
 }

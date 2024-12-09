@@ -18,7 +18,8 @@ public class AccountService {
     private final PasswordEncoder passwordEncoder;
     private final AccountRepository accountRepository;
 
-    public AccountService(PasswordEncoder passwordEncoder, AccountRepository accountRepository) throws IOException {
+    public AccountService(final PasswordEncoder passwordEncoder,
+                          final AccountRepository accountRepository) throws IOException {
         this.passwordEncoder = passwordEncoder;
         this.accountRepository = accountRepository;
         loadAccounts();
@@ -35,17 +36,17 @@ public class AccountService {
         });
     }
 
-    public boolean accountExists(String username) {
+    public boolean accountExists(final String username) {
         return accountRepository.existsByUsername(username);
     }
 
-    void addMerchantToAccount(String username, Merchant merchant) {
+    void addMerchantToAccount(final String username, final Merchant merchant) {
         Account account = accountRepository.findByUsername(username).orElseThrow();
         account.setMerchant(merchant);
         accountRepository.save(account);
     }
 
-    public String getAccountRole(String username) {
+    public String getAccountRole(final String username) {
         Account account = accountRepository.findByUsername(username).orElseThrow();
         return account.getRole().name();
     }
