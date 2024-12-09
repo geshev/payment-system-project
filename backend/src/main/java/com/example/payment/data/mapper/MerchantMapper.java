@@ -2,7 +2,7 @@ package com.example.payment.data.mapper;
 
 import com.example.payment.data.dto.merchant.MerchantCreation;
 import com.example.payment.data.dto.merchant.MerchantInfo;
-import com.example.payment.data.model.Merchant;
+import com.example.payment.data.model.merchant.Merchant;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

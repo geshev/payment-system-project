@@ -1,6 +1,6 @@
 package com.example.payment.service.security;
 
-import com.example.payment.data.model.Account;
+import com.example.payment.data.model.account.Account;
 import com.example.payment.data.repo.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

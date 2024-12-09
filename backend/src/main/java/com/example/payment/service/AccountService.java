@@ -1,7 +1,7 @@
 package com.example.payment.service;
 
-import com.example.payment.data.model.Account;
-import com.example.payment.data.model.Merchant;
+import com.example.payment.data.model.account.Account;
+import com.example.payment.data.model.merchant.Merchant;
 import com.example.payment.data.repo.AccountRepository;
 import com.example.payment.util.CSVUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;

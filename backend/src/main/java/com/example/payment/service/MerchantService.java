@@ -4,7 +4,7 @@ import com.example.payment.data.dto.merchant.MerchantCreation;
 import com.example.payment.data.dto.merchant.MerchantInfo;
 import com.example.payment.data.dto.merchant.MerchantUpdate;
 import com.example.payment.data.mapper.MerchantMapper;
-import com.example.payment.data.model.Merchant;
+import com.example.payment.data.model.merchant.Merchant;
 import com.example.payment.data.repo.MerchantRepository;
 import com.example.payment.error.exception.MerchantNotFoundException;
 import com.example.payment.util.CSVUtils;

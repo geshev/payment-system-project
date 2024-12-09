@@ -1,5 +1,6 @@
-package com.example.payment.data.model;
+package com.example.payment.data.model.account;
 
+import com.example.payment.data.model.merchant.Merchant;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

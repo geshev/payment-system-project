@@ -1,6 +1,6 @@
 package com.example.payment.data.dto.merchant;
 
-import com.example.payment.data.model.MerchantStatus;
+import com.example.payment.data.model.merchant.MerchantStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 

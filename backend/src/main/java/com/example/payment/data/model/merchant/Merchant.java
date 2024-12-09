@@ -1,4 +1,4 @@
-package com.example.payment.data.model;
+package com.example.payment.data.model.merchant;
 
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
