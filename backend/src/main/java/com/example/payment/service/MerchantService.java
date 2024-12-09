@@ -2,6 +2,7 @@ package com.example.payment.service;
 
 import com.example.payment.data.dto.merchant.MerchantCreation;
 import com.example.payment.data.dto.merchant.MerchantInfo;
+import com.example.payment.data.dto.merchant.MerchantUpdate;
 import com.example.payment.data.mapper.MerchantMapper;
 import com.example.payment.data.model.Merchant;
 import com.example.payment.data.repo.MerchantRepository;
@@ -46,7 +47,18 @@ public class MerchantService {
         return merchantRepository.findAll().stream().map(merchantMapper::toInfo).toList();
     }
 
-    public MerchantInfo getMerchant(final Long id) throws MerchantNotFoundException {
-        return merchantMapper.toInfo(merchantRepository.findById(id).orElseThrow(MerchantNotFoundException::new));
+    public MerchantInfo getMerchant(final String name) throws MerchantNotFoundException {
+        return merchantMapper.toInfo(merchantRepository.findByName(name).orElseThrow(MerchantNotFoundException::new));
+    }
+
+    public void updateMerchant(final String name, final MerchantUpdate update) throws MerchantNotFoundException {
+        Merchant merchant = merchantRepository.findByName(name).orElseThrow(MerchantNotFoundException::new);
+
+        merchant.setName(update.name());
+        merchant.setDescription(update.description());
+        merchant.setEmail(update.email());
+        merchant.setStatus(update.status());
+
+        merchantRepository.save(merchant);
     }
 }

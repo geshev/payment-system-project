@@ -14,3 +14,10 @@ export type MerchantInfo = {
   status: MerchantStatus,
   totalTransactionSum: number;
 };
+
+export type MerchantUpdate = {
+  name: string,
+  description: string,
+  email: string,
+  status: MerchantStatus,
+};

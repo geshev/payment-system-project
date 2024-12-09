@@ -1,8 +1,10 @@
 package com.example.payment.unit.merchant;
 
 import com.example.payment.data.dto.merchant.MerchantInfo;
+import com.example.payment.data.dto.merchant.MerchantUpdate;
 import com.example.payment.data.mapper.MerchantMapper;
 import com.example.payment.data.model.Merchant;
+import com.example.payment.data.model.MerchantStatus;
 import com.example.payment.data.repo.MerchantRepository;
 import com.example.payment.error.exception.MerchantNotFoundException;
 import com.example.payment.service.AccountService;
@@ -23,17 +25,22 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class MerchantServiceTest {
 
-    private static final Long TEST_MERCHANT_ID = 1L;
     private static final String TEST_MERCHANT_NAME = "TEST MERCHANT";
     private static final Merchant TEST_MERCHANT = new Merchant();
 
+    private static final String TEST_UPDATE_VALUE = "TEST UP";
+    private static final MerchantUpdate TEST_MERCHANT_UPDATE = new MerchantUpdate(TEST_UPDATE_VALUE, TEST_UPDATE_VALUE,
+            TEST_UPDATE_VALUE, MerchantStatus.INACTIVE);
+
     static {
-        TEST_MERCHANT.setId(TEST_MERCHANT_ID);
         TEST_MERCHANT.setName(TEST_MERCHANT_NAME);
     }
 
     private static final MerchantInfo TEST_MERCHANT_INFO = new MerchantInfo(TEST_MERCHANT_NAME, null, null, null, null);
     private static final List<Merchant> TEST_MERCHANTS = List.of(TEST_MERCHANT, TEST_MERCHANT, TEST_MERCHANT);
+
+    @Mock
+    private Merchant merchantToUpdate;
 
     @Mock
     private MerchantRepository merchantRepository;
@@ -68,20 +75,41 @@ public class MerchantServiceTest {
 
     @Test
     void testGetMerchant() throws MerchantNotFoundException {
-        when(merchantRepository.findById(TEST_MERCHANT_ID)).thenReturn(Optional.of(TEST_MERCHANT));
+        when(merchantRepository.findByName(TEST_MERCHANT_NAME)).thenReturn(Optional.of(TEST_MERCHANT));
         when(merchantMapper.toInfo(TEST_MERCHANT)).thenReturn(TEST_MERCHANT_INFO);
 
-        MerchantInfo result = merchantService.getMerchant(TEST_MERCHANT_ID);
+        MerchantInfo result = merchantService.getMerchant(TEST_MERCHANT_NAME);
         assertThat(result).isEqualTo(TEST_MERCHANT_INFO);
 
-        verify(merchantRepository, times(1)).findById(TEST_MERCHANT_ID);
+        verify(merchantRepository, times(1)).findByName(TEST_MERCHANT_NAME);
         verify(merchantMapper, times(1)).toInfo(TEST_MERCHANT);
     }
 
     @Test
     void testGetMerchantNotFound() {
-        when(merchantRepository.findById(any())).thenReturn(Optional.empty());
+        when(merchantRepository.findByName(TEST_MERCHANT_NAME)).thenReturn(Optional.empty());
 
-        assertThrows(MerchantNotFoundException.class, () -> merchantService.getMerchant(TEST_MERCHANT_ID));
+        assertThrows(MerchantNotFoundException.class, () -> merchantService.getMerchant(TEST_MERCHANT_NAME));
+    }
+
+    @Test
+    void testUpdateMerchant() throws MerchantNotFoundException {
+        when(merchantRepository.findByName(TEST_MERCHANT_NAME)).thenReturn(Optional.of(merchantToUpdate));
+
+        merchantService.updateMerchant(TEST_MERCHANT_NAME, TEST_MERCHANT_UPDATE);
+
+        verify(merchantToUpdate, times(1)).setName(TEST_UPDATE_VALUE);
+        verify(merchantToUpdate, times(1)).setDescription(TEST_UPDATE_VALUE);
+        verify(merchantToUpdate, times(1)).setEmail(TEST_UPDATE_VALUE);
+        verify(merchantToUpdate, times(1)).setStatus(MerchantStatus.INACTIVE);
+        verify(merchantRepository, times(1)).save(merchantToUpdate);
+    }
+
+    @Test
+    void testUpdateMerchantNotFound() {
+        when(merchantRepository.findByName(TEST_MERCHANT_NAME)).thenReturn(Optional.empty());
+
+        assertThrows(MerchantNotFoundException.class, () -> merchantService.updateMerchant(
+                TEST_MERCHANT_NAME, TEST_MERCHANT_UPDATE));
     }
 }

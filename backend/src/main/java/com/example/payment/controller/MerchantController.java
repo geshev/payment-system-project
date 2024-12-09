@@ -1,12 +1,11 @@
 package com.example.payment.controller;
 
 import com.example.payment.data.dto.merchant.MerchantInfo;
+import com.example.payment.data.dto.merchant.MerchantUpdate;
 import com.example.payment.error.exception.MerchantNotFoundException;
 import com.example.payment.service.MerchantService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,8 +24,14 @@ public class MerchantController {
         return merchantService.getMerchants();
     }
 
-    @GetMapping("{id}")
-    public MerchantInfo getMerchant(@PathVariable final Long id) throws MerchantNotFoundException {
-        return merchantService.getMerchant(id);
+    @GetMapping("{name}")
+    public MerchantInfo getMerchant(@PathVariable final String name) throws MerchantNotFoundException {
+        return merchantService.getMerchant(name);
+    }
+
+    @PutMapping("{name}")
+    public void updateMerchant(@PathVariable final String name,
+                               @RequestBody @Valid final MerchantUpdate update) throws MerchantNotFoundException {
+        merchantService.updateMerchant(name, update);
     }
 }
