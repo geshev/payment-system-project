@@ -1,5 +1,6 @@
 package com.example.payment.controller;
 
+import com.example.payment.data.dto.transaction.TransactionInfo;
 import com.example.payment.data.dto.transaction.TransactionRequest;
 import com.example.payment.data.model.account.Account;
 import com.example.payment.error.exception.MerchantNotActiveException;
@@ -9,10 +10,9 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("transactions")
@@ -22,6 +22,12 @@ public class TransactionController {
 
     public TransactionController(final TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<TransactionInfo>> getTransactions(@AuthenticationPrincipal final Account account)
+            throws MerchantNotFoundException, MerchantNotActiveException {
+        return ResponseEntity.ok(transactionService.getTransactions(account));
     }
 
     @PostMapping

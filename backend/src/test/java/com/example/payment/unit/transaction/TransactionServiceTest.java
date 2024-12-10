@@ -1,5 +1,6 @@
 package com.example.payment.unit.transaction;
 
+import com.example.payment.data.dto.transaction.TransactionInfo;
 import com.example.payment.data.dto.transaction.TransactionRequest;
 import com.example.payment.data.mapper.TransactionMapper;
 import com.example.payment.data.model.account.Account;
@@ -17,8 +18,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -43,6 +46,7 @@ public class TransactionServiceTest {
     }
 
     private static final UUID TEST_UUID = UUID.randomUUID();
+    private static final TransactionStatus TEST_STATUS = TransactionStatus.APPROVED;
     private static final String TEST_EMAIL = "test@test.com";
     private static final String TEST_PHONE = "+19090909090";
     private static final String TEST_REFERENCE_ID = "090909";
@@ -52,28 +56,45 @@ public class TransactionServiceTest {
     private static final TransactionRequest TEST_AUTHORIZE_REQUEST =
             new TransactionRequest(TransactionType.AUTHORIZE, TEST_UUID, TEST_EMAIL, TEST_PHONE, TEST_REFERENCE_ID,
                     TEST_AMOUNT);
+    private static final TransactionInfo TEST_AUTHORIZE_INFO =
+            new TransactionInfo(TransactionType.AUTHORIZE, TEST_UUID, TEST_STATUS, TEST_EMAIL, TEST_PHONE,
+                    TEST_REFERENCE_ID, TEST_AMOUNT);
 
     private static final ChargeTransaction TEST_CHARGE_TRANSACTION = new ChargeTransaction();
     private static final TransactionRequest TEST_CHARGE_REQUEST =
             new TransactionRequest(TransactionType.CHARGE, TEST_UUID, TEST_EMAIL, TEST_PHONE, TEST_REFERENCE_ID,
                     TEST_AMOUNT);
+    private static final TransactionInfo TEST_CHARGE_INFO =
+            new TransactionInfo(TransactionType.CHARGE, TEST_UUID, TEST_STATUS, TEST_EMAIL, TEST_PHONE,
+                    TEST_REFERENCE_ID, TEST_AMOUNT);
 
     private static final RefundTransaction TEST_REFUND_TRANSACTION = new RefundTransaction();
     private static final TransactionRequest TEST_REFUND_REQUEST =
             new TransactionRequest(TransactionType.REFUND, TEST_UUID, TEST_EMAIL, TEST_PHONE, TEST_REFERENCE_ID,
                     TEST_AMOUNT);
+    private static final TransactionInfo TEST_REFUND_INFO =
+            new TransactionInfo(TransactionType.REFUND, TEST_UUID, TEST_STATUS, TEST_EMAIL, TEST_PHONE,
+                    TEST_REFERENCE_ID, TEST_AMOUNT);
 
     private static final ReversalTransaction TEST_REVERSAL_TRANSACTION = new ReversalTransaction();
     private static final TransactionRequest TEST_REVERSAL_REQUEST =
             new TransactionRequest(TransactionType.REVERSAL, TEST_UUID, TEST_EMAIL, TEST_PHONE, TEST_REFERENCE_ID,
                     null);
+    private static final TransactionInfo TEST_REVERSAL_INFO =
+            new TransactionInfo(TransactionType.REVERSAL, TEST_UUID, TEST_STATUS, TEST_EMAIL, TEST_PHONE,
+                    TEST_REFERENCE_ID, null);
 
     static {
+        TEST_AUTHORIZE_TRANSACTION.setId(1L);
         TEST_AUTHORIZE_TRANSACTION.setUuid(TEST_UUID);
         TEST_AUTHORIZE_TRANSACTION.setCustomerEmail(TEST_EMAIL);
         TEST_AUTHORIZE_TRANSACTION.setCustomerPhone(TEST_PHONE);
         TEST_AUTHORIZE_TRANSACTION.setReferenceId(TEST_REFERENCE_ID);
         TEST_AUTHORIZE_TRANSACTION.setAmount(TEST_AMOUNT);
+
+        TEST_CHARGE_TRANSACTION.setId(2L);
+        TEST_REFUND_TRANSACTION.setId(3L);
+        TEST_REVERSAL_TRANSACTION.setId(4L);
     }
 
     @Mock
@@ -135,5 +156,32 @@ public class TransactionServiceTest {
     void testTransactionProcessMerchantNotActive() {
         assertThrows(MerchantNotActiveException.class, () ->
                 transactionService.processTransaction(INACTIVE_MERCHANT_ACCOUNT, TEST_AUTHORIZE_REQUEST));
+    }
+
+    @Test
+    void testGetTransactions() throws MerchantNotFoundException, MerchantNotActiveException {
+        List<Transaction> transactions =
+                List.of(TEST_AUTHORIZE_TRANSACTION, TEST_CHARGE_TRANSACTION, TEST_REFUND_TRANSACTION);
+        when(transactionRepository.findAllByMerchant(TEST_MERCHANT)).thenReturn(transactions);
+        when(transactionMapper.toTransactionInfo(TEST_AUTHORIZE_TRANSACTION))
+                .thenReturn(TEST_AUTHORIZE_INFO);
+        when(transactionMapper.toTransactionInfo(TEST_CHARGE_TRANSACTION))
+                .thenReturn(TEST_CHARGE_INFO);
+        when(transactionMapper.toTransactionInfo(TEST_REFUND_TRANSACTION))
+                .thenReturn(TEST_REFUND_INFO);
+
+        List<TransactionInfo> result = transactionService.getTransactions(TEST_ACCOUNT);
+
+        assertThat(result.size()).isEqualTo(transactions.size());
+        assertThat(result.getFirst().type()).isEqualTo(TransactionType.AUTHORIZE);
+        assertThat(result.getLast().type()).isEqualTo(TransactionType.REFUND);
+
+        verify(transactionRepository, times(1)).findAllByMerchant(TEST_MERCHANT);
+    }
+
+    @Test
+    void testGetTransactionsMerchantNotFound() {
+        assertThrows(MerchantNotFoundException.class, () ->
+                transactionService.getTransactions(EMPTY_ACCOUNT));
     }
 }

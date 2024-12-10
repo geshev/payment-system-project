@@ -2,7 +2,7 @@ import { updateMerchantAction } from "@/actions/merchants";
 import { getMerchant } from "@/service/merchant-service";
 import { MerchantStatus } from "@/types/types";
 
-export default async function Home({ params }: { params: { name: string; }; }) {
+export default async function Merchant({ params }: { params: { name: string; }; }) {
   const merchant = await getMerchant(params.name);
 
   return (

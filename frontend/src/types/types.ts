@@ -26,3 +26,27 @@ export type MerchantUpdate = {
   email: string,
   status: MerchantStatus,
 };
+
+export enum TransactionType {
+  AUTHORIZE,
+  CHARGE,
+  REFUND,
+  REVERSAL
+}
+
+export enum TransactionStatus {
+  APPROVED,
+  REVERSED,
+  REFUNDED,
+  ERROR
+}
+
+export type TransactionInfo = {
+  type: TransactionType,
+  uuid: string,
+  status: TransactionStatus,
+  customerEmail: string,
+  customerPhone: string,
+  referenceId: string,
+  amount: number;
+};
