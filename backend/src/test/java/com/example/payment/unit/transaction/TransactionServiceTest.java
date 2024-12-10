@@ -4,8 +4,10 @@ import com.example.payment.data.dto.transaction.TransactionRequest;
 import com.example.payment.data.mapper.TransactionMapper;
 import com.example.payment.data.model.account.Account;
 import com.example.payment.data.model.merchant.Merchant;
+import com.example.payment.data.model.merchant.MerchantStatus;
 import com.example.payment.data.model.transaction.*;
 import com.example.payment.data.repo.TransactionRepository;
+import com.example.payment.error.exception.MerchantNotActiveException;
 import com.example.payment.error.exception.MerchantNotFoundException;
 import com.example.payment.service.TransactionService;
 import org.junit.jupiter.api.Test;
@@ -24,11 +26,19 @@ import static org.mockito.Mockito.*;
 public class TransactionServiceTest {
 
     private static final Merchant TEST_MERCHANT = new Merchant();
+    private static final Merchant INACTIVE_MERCHANT = new Merchant();
+
+    static {
+        INACTIVE_MERCHANT.setStatus(MerchantStatus.INACTIVE);
+    }
 
     private static final Account EMPTY_ACCOUNT = new Account();
+    private static final Account INACTIVE_MERCHANT_ACCOUNT = new Account();
     private static final Account TEST_ACCOUNT = new Account();
 
     static {
+        INACTIVE_MERCHANT_ACCOUNT.setMerchant(INACTIVE_MERCHANT);
+
         TEST_ACCOUNT.setMerchant(TEST_MERCHANT);
     }
 
@@ -76,7 +86,7 @@ public class TransactionServiceTest {
     private TransactionService transactionService;
 
     @Test
-    void testAuthorizeTransactionProcess() throws MerchantNotFoundException {
+    void testAuthorizeTransactionProcess() throws MerchantNotFoundException, MerchantNotActiveException {
         when(transactionMapper.toTransaction(TEST_AUTHORIZE_REQUEST)).thenReturn(TEST_AUTHORIZE_TRANSACTION);
 
         transactionService.processTransaction(TEST_ACCOUNT, TEST_AUTHORIZE_REQUEST);
@@ -86,7 +96,7 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void testChargeTransactionProcess() throws MerchantNotFoundException {
+    void testChargeTransactionProcess() throws MerchantNotFoundException, MerchantNotActiveException {
         when(transactionMapper.toTransaction(TEST_CHARGE_REQUEST)).thenReturn(TEST_CHARGE_TRANSACTION);
 
         transactionService.processTransaction(TEST_ACCOUNT, TEST_CHARGE_REQUEST);
@@ -96,7 +106,7 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void testRefundTransactionProcess() throws MerchantNotFoundException {
+    void testRefundTransactionProcess() throws MerchantNotFoundException, MerchantNotActiveException {
         when(transactionMapper.toTransaction(TEST_REFUND_REQUEST)).thenReturn(TEST_REFUND_TRANSACTION);
 
         transactionService.processTransaction(TEST_ACCOUNT, TEST_REFUND_REQUEST);
@@ -106,7 +116,7 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void testReversalTransactionProcess() throws MerchantNotFoundException {
+    void testReversalTransactionProcess() throws MerchantNotFoundException, MerchantNotActiveException {
         when(transactionMapper.toTransaction(TEST_REVERSAL_REQUEST)).thenReturn(TEST_REVERSAL_TRANSACTION);
 
         transactionService.processTransaction(TEST_ACCOUNT, TEST_REVERSAL_REQUEST);
@@ -119,5 +129,11 @@ public class TransactionServiceTest {
     void testTransactionProcessNoMerchant() {
         assertThrows(MerchantNotFoundException.class, () ->
                 transactionService.processTransaction(EMPTY_ACCOUNT, TEST_AUTHORIZE_REQUEST));
+    }
+
+    @Test
+    void testTransactionProcessMerchantNotActive() {
+        assertThrows(MerchantNotActiveException.class, () ->
+                transactionService.processTransaction(INACTIVE_MERCHANT_ACCOUNT, TEST_AUTHORIZE_REQUEST));
     }
 }
