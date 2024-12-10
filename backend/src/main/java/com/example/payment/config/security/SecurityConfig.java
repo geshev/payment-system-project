@@ -19,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import javax.sql.DataSource;
 
 import static com.example.payment.data.model.account.Role.ADMIN;
+import static com.example.payment.data.model.account.Role.MERCHANT;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
@@ -60,6 +61,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers(HttpMethod.POST, "/auth/token").permitAll()
                         .requestMatchers(HttpMethod.GET, "/merchants").hasAuthority(ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, "/merchants/**").hasAuthority(ADMIN.name())
+                        .requestMatchers(HttpMethod.PUT, "/merchants/**").hasAuthority(ADMIN.name())
+                        .requestMatchers(HttpMethod.DELETE, "/merchants/**").hasAuthority(ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, "/transactions").hasAuthority(MERCHANT.name())
+                        .requestMatchers(HttpMethod.POST, "/transactions").hasAuthority(MERCHANT.name())
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);

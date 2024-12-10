@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAuthenticated } from "./service/auth-service";
 
-const routes = [
-  "/"
+const protectedRoutes = [
+  "/merchants"
 ];
 
 function isProtectedRoute(path: string): boolean {
-  return routes.some((route) => path === route);
+  return path === "/" || protectedRoutes.some((route) => path.startsWith(route));
 }
 
 export async function middleware(request: NextRequest) {
