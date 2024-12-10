@@ -2,6 +2,11 @@ export type LoginResponse = {
   token: string;
 };
 
+export enum Role {
+  ADMIN,
+  MERCHANT
+}
+
 export enum MerchantStatus {
   ACTIVE,
   INACTIVE

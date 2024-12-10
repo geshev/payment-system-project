@@ -10,13 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 @Service
 @Transactional
 public class AuthenticationService {
 
-    private static final String ROLES_CLAIM = "roles";
+    private static final String ROLE_CLAIM = "role";
 
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -33,11 +32,11 @@ public class AuthenticationService {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()));
 
-        Map<String, Set<String>> accountClaims = new HashMap<>();
-        Set<String> accountRoles = Set.of(accountService.getAccountRole(loginRequest.username()));
-        accountClaims.put(ROLES_CLAIM, accountRoles);
+        Map<String, String> roleClaim = new HashMap<>();
+        String role = accountService.getAccountRole(loginRequest.username());
+        roleClaim.put(ROLE_CLAIM, role);
 
-        String jwtToken = jwtService.generateToken(accountClaims, loginRequest.username());
+        String jwtToken = jwtService.generateToken(roleClaim, loginRequest.username());
         return new LoginResponse(jwtToken);
     }
 }
