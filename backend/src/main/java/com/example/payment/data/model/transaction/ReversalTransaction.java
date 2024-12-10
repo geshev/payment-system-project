@@ -6,4 +6,9 @@ import jakarta.persistence.Entity;
 @Entity
 @DiscriminatorValue("REVERSAL")
 public class ReversalTransaction extends Transaction {
+
+    @Override
+    public TransactionType getType() {
+        return TransactionType.REVERSAL;
+    }
 }

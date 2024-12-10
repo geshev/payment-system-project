@@ -40,4 +40,6 @@ public abstract class Transaction {
     @ManyToOne
     @JoinColumn(nullable = false)
     private Merchant merchant;
+
+    public abstract TransactionType getType();
 }
