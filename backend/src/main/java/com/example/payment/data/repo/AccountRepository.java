@@ -1,6 +1,7 @@
 package com.example.payment.data.repo;
 
 import com.example.payment.data.model.account.Account;
+import com.example.payment.data.model.merchant.Merchant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,4 +15,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     Optional<Account> findByUsername(String username);
 
     Optional<Account> findByUsernameAndEnabledTrue(String username);
+
+    Optional<Account> findByMerchant(Merchant merchant);
 }

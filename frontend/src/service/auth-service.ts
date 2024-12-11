@@ -29,3 +29,8 @@ export async function removeAuthentication() {
   const cookieStore = await cookies();
   cookieStore.delete("auth-token");
 }
+
+export async function getAuthToken() {
+  const cookieStore = await cookies();
+  return cookieStore.get("auth-token")?.value;
+}

@@ -2,6 +2,7 @@ package com.example.payment.controller;
 
 import com.example.payment.data.dto.merchant.MerchantInfo;
 import com.example.payment.data.dto.merchant.MerchantUpdate;
+import com.example.payment.error.exception.MerchantNonDeletableException;
 import com.example.payment.error.exception.MerchantNotFoundException;
 import com.example.payment.service.MerchantService;
 import jakarta.validation.Valid;
@@ -33,5 +34,11 @@ public class MerchantController {
     public void updateMerchant(@PathVariable final String name,
                                @RequestBody @Valid final MerchantUpdate update) throws MerchantNotFoundException {
         merchantService.updateMerchant(name, update);
+    }
+
+    @DeleteMapping("{name}")
+    public void deleteMerchant(@PathVariable final String name)
+            throws MerchantNotFoundException, MerchantNonDeletableException {
+        merchantService.deleteMerchant(name);
     }
 }

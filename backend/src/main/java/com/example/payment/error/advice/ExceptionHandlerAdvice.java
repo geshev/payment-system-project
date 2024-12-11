@@ -1,5 +1,6 @@
 package com.example.payment.error.advice;
 
+import com.example.payment.error.exception.MerchantNonDeletableException;
 import com.example.payment.error.exception.MerchantNotActiveException;
 import com.example.payment.error.exception.MerchantNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,11 @@ public class ExceptionHandlerAdvice {
 
     @ExceptionHandler(value = {MerchantNotActiveException.class})
     ResponseEntity<Void> handleMerchantNotActive() {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+    @ExceptionHandler(value = {MerchantNonDeletableException.class})
+    ResponseEntity<Void> handleMerchantNonDeletable() {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 }

@@ -6,6 +6,7 @@ import com.example.payment.data.dto.merchant.MerchantUpdate;
 import com.example.payment.data.mapper.MerchantMapper;
 import com.example.payment.data.model.merchant.Merchant;
 import com.example.payment.data.repo.MerchantRepository;
+import com.example.payment.error.exception.MerchantNonDeletableException;
 import com.example.payment.error.exception.MerchantNotFoundException;
 import com.example.payment.util.CSVUtils;
 import org.springframework.stereotype.Service;
@@ -21,12 +22,15 @@ public class MerchantService {
     private final MerchantRepository merchantRepository;
     private final MerchantMapper merchantMapper;
     private final AccountService accountService;
+    private final TransactionService transactionService;
 
     public MerchantService(final MerchantRepository merchantRepository, final MerchantMapper merchantMapper,
-                           final AccountService accountService) throws IOException {
+                           final AccountService accountService, final TransactionService transactionService)
+            throws IOException {
         this.merchantRepository = merchantRepository;
         this.merchantMapper = merchantMapper;
         this.accountService = accountService;
+        this.transactionService = transactionService;
         loadMerchants();
     }
 
@@ -60,5 +64,15 @@ public class MerchantService {
         merchant.setStatus(update.status());
 
         merchantRepository.save(merchant);
+    }
+
+    public void deleteMerchant(final String name) throws MerchantNotFoundException, MerchantNonDeletableException {
+        Merchant merchant = merchantRepository.findByName(name).orElseThrow(MerchantNotFoundException::new);
+        if (transactionService.merchantHasTransactions(merchant)) {
+            throw new MerchantNonDeletableException();
+        } else {
+            accountService.removeMerchantFromAccount(merchant);
+            merchantRepository.delete(merchant);
+        }
     }
 }

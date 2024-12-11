@@ -1,10 +1,9 @@
 import { TransactionInfo } from "@/types/types";
 import { getDataJSON } from "@/util/fetch-utils";
-import { cookies } from "next/headers";
+import { getAuthToken } from "./auth-service";
 
 export async function getTransactions() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("auth-token")?.value;
+  const token = await getAuthToken();
   const merchants: TransactionInfo[] = await getDataJSON(process.env.API + "transactions", token ? token : '');
   return merchants;
 }

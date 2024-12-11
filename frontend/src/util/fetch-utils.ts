@@ -45,6 +45,17 @@ export async function putData(request: string, auth: string, data: any) {
   return response;
 }
 
+export async function deleteData(request: string, auth: string) {
+  const response = await executeFetch(request, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${auth}`
+    },
+    cache: 'no-store'
+  });
+  return response;
+}
+
 async function executeFetch(input: string, init: RequestInit) {
   const response = await fetch(input, init);
   if (!response.ok) {

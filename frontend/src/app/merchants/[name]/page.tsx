@@ -1,5 +1,5 @@
-import { updateMerchantAction } from "@/actions/merchants";
-import { getMerchant } from "@/service/merchant-service";
+import { deleteMerchantAction, updateMerchantAction } from "@/actions/merchants";
+import { deleteMerchant, getMerchant } from "@/service/merchant-service";
 import { MerchantStatus } from "@/types/types";
 
 export default async function Merchant({ params }: { params: { name: string; }; }) {
@@ -45,6 +45,10 @@ export default async function Merchant({ params }: { params: { name: string; }; 
           </tbody>
         </table>
         <button type="submit" className="main-color text-white btn btn-primary border-0">Update</button>
+      </form>
+      <form action={deleteMerchantAction} className="w-100 d-flex justify-content-end">
+        <input type="hidden" name="name-id" defaultValue={params.name} />
+        <button type="submit" className="del-btn text-white btn btn-primary border-0">Delete</button>
       </form>
     </main>
   );

@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -40,14 +41,23 @@ public class AccountService {
         return accountRepository.existsByUsername(username);
     }
 
+    public String getAccountRole(final String username) {
+        Account account = accountRepository.findByUsername(username).orElseThrow();
+        return account.getRole().name();
+    }
+
+    public void removeMerchantFromAccount(final Merchant merchant) {
+        Optional<Account> accountOpt = accountRepository.findByMerchant(merchant);
+        if (accountOpt.isPresent()) {
+            Account account = accountOpt.get();
+            account.setMerchant(null);
+            accountRepository.save(account);
+        }
+    }
+
     void addMerchantToAccount(final String username, final Merchant merchant) {
         Account account = accountRepository.findByUsername(username).orElseThrow();
         account.setMerchant(merchant);
         accountRepository.save(account);
-    }
-
-    public String getAccountRole(final String username) {
-        Account account = accountRepository.findByUsername(username).orElseThrow();
-        return account.getRole().name();
     }
 }

@@ -52,6 +52,7 @@ public class TransactionServiceTest {
     private static final String TEST_REFERENCE_ID = "090909";
     private static final BigDecimal TEST_AMOUNT = new BigDecimal("10.10");
 
+    private static final Long TEST_AUTHORIZE_TRANSACTION_ID = 1L;
     private static final AuthorizeTransaction TEST_AUTHORIZE_TRANSACTION = new AuthorizeTransaction();
     private static final TransactionRequest TEST_AUTHORIZE_REQUEST =
             new TransactionRequest(TransactionType.AUTHORIZE, TEST_UUID, TEST_EMAIL, TEST_PHONE, TEST_REFERENCE_ID,
@@ -60,6 +61,8 @@ public class TransactionServiceTest {
             new TransactionInfo(TransactionType.AUTHORIZE, TEST_UUID, TEST_STATUS, TEST_EMAIL, TEST_PHONE,
                     TEST_REFERENCE_ID, TEST_AMOUNT);
 
+
+    private static final Long TEST_CHARGE_TRANSACTION_ID = 2L;
     private static final ChargeTransaction TEST_CHARGE_TRANSACTION = new ChargeTransaction();
     private static final TransactionRequest TEST_CHARGE_REQUEST =
             new TransactionRequest(TransactionType.CHARGE, TEST_UUID, TEST_EMAIL, TEST_PHONE, TEST_REFERENCE_ID,
@@ -68,6 +71,7 @@ public class TransactionServiceTest {
             new TransactionInfo(TransactionType.CHARGE, TEST_UUID, TEST_STATUS, TEST_EMAIL, TEST_PHONE,
                     TEST_REFERENCE_ID, TEST_AMOUNT);
 
+    private static final Long TEST_REFUND_TRANSACTION_ID = 3L;
     private static final RefundTransaction TEST_REFUND_TRANSACTION = new RefundTransaction();
     private static final TransactionRequest TEST_REFUND_REQUEST =
             new TransactionRequest(TransactionType.REFUND, TEST_UUID, TEST_EMAIL, TEST_PHONE, TEST_REFERENCE_ID,
@@ -76,6 +80,7 @@ public class TransactionServiceTest {
             new TransactionInfo(TransactionType.REFUND, TEST_UUID, TEST_STATUS, TEST_EMAIL, TEST_PHONE,
                     TEST_REFERENCE_ID, TEST_AMOUNT);
 
+    private static final Long TEST_REVERSAL_TRANSACTION_ID = 4L;
     private static final ReversalTransaction TEST_REVERSAL_TRANSACTION = new ReversalTransaction();
     private static final TransactionRequest TEST_REVERSAL_REQUEST =
             new TransactionRequest(TransactionType.REVERSAL, TEST_UUID, TEST_EMAIL, TEST_PHONE, TEST_REFERENCE_ID,
@@ -85,16 +90,16 @@ public class TransactionServiceTest {
                     TEST_REFERENCE_ID, null);
 
     static {
-        TEST_AUTHORIZE_TRANSACTION.setId(1L);
+        TEST_AUTHORIZE_TRANSACTION.setId(TEST_AUTHORIZE_TRANSACTION_ID);
         TEST_AUTHORIZE_TRANSACTION.setUuid(TEST_UUID);
         TEST_AUTHORIZE_TRANSACTION.setCustomerEmail(TEST_EMAIL);
         TEST_AUTHORIZE_TRANSACTION.setCustomerPhone(TEST_PHONE);
         TEST_AUTHORIZE_TRANSACTION.setReferenceId(TEST_REFERENCE_ID);
         TEST_AUTHORIZE_TRANSACTION.setAmount(TEST_AMOUNT);
 
-        TEST_CHARGE_TRANSACTION.setId(2L);
-        TEST_REFUND_TRANSACTION.setId(3L);
-        TEST_REVERSAL_TRANSACTION.setId(4L);
+        TEST_CHARGE_TRANSACTION.setId(TEST_CHARGE_TRANSACTION_ID);
+        TEST_REFUND_TRANSACTION.setId(TEST_REFUND_TRANSACTION_ID);
+        TEST_REVERSAL_TRANSACTION.setId(TEST_REVERSAL_TRANSACTION_ID);
     }
 
     @Mock

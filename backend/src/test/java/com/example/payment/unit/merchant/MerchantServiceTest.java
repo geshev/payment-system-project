@@ -6,9 +6,11 @@ import com.example.payment.data.mapper.MerchantMapper;
 import com.example.payment.data.model.merchant.Merchant;
 import com.example.payment.data.model.merchant.MerchantStatus;
 import com.example.payment.data.repo.MerchantRepository;
+import com.example.payment.error.exception.MerchantNonDeletableException;
 import com.example.payment.error.exception.MerchantNotFoundException;
 import com.example.payment.service.AccountService;
 import com.example.payment.service.MerchantService;
+import com.example.payment.service.TransactionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -50,6 +52,9 @@ public class MerchantServiceTest {
 
     @Mock
     private AccountService accountService;
+
+    @Mock
+    private TransactionService transactionService;
 
     @InjectMocks
     private MerchantService merchantService;
@@ -111,5 +116,31 @@ public class MerchantServiceTest {
 
         assertThrows(MerchantNotFoundException.class, () -> merchantService.updateMerchant(
                 TEST_MERCHANT_NAME, TEST_MERCHANT_UPDATE));
+    }
+
+    @Test
+    void testDeleteMerchantWithAccount() throws MerchantNotFoundException, MerchantNonDeletableException {
+        when(merchantRepository.findByName(TEST_MERCHANT_NAME)).thenReturn(Optional.of(TEST_MERCHANT));
+
+        merchantService.deleteMerchant(TEST_MERCHANT_NAME);
+
+        verify(transactionService, times(1)).merchantHasTransactions(TEST_MERCHANT);
+        verify(accountService, times(1)).removeMerchantFromAccount(TEST_MERCHANT);
+        verify(merchantRepository, times(1)).delete(TEST_MERCHANT);
+    }
+
+    @Test
+    void testDeleteMerchantNotFound() {
+        when(merchantRepository.findByName(TEST_MERCHANT_NAME)).thenReturn(Optional.empty());
+
+        assertThrows(MerchantNotFoundException.class, () -> merchantService.deleteMerchant(TEST_MERCHANT_NAME));
+    }
+
+    @Test
+    void testDeleteMerchantNonDeletable() {
+        when(merchantRepository.findByName(TEST_MERCHANT_NAME)).thenReturn(Optional.of(TEST_MERCHANT));
+        when(transactionService.merchantHasTransactions(TEST_MERCHANT)).thenReturn(true);
+
+        assertThrows(MerchantNonDeletableException.class, () -> merchantService.deleteMerchant(TEST_MERCHANT_NAME));
     }
 }

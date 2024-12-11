@@ -40,14 +40,18 @@ public class TransactionService {
         transactionRepository.save(transaction);
     }
 
-    public List<TransactionInfo> getTransactions(Account account)
+    public List<TransactionInfo> getTransactions(final Account account)
             throws MerchantNotFoundException, MerchantNotActiveException {
         Merchant merchant = verifyAndGetMerchant(account, false);
         return transactionRepository.findAllByMerchant(merchant).stream()
                 .map(transactionMapper::toTransactionInfo).toList();
     }
 
-    private Merchant verifyAndGetMerchant(Account account, boolean requiresActive)
+    public boolean merchantHasTransactions(final Merchant merchant) {
+        return transactionRepository.existsByMerchant(merchant);
+    }
+
+    private Merchant verifyAndGetMerchant(final Account account, final boolean requiresActive)
             throws MerchantNotFoundException, MerchantNotActiveException {
         Merchant merchant = account.getMerchant();
         if (merchant == null) {
