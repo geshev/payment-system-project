@@ -1,5 +1,6 @@
 package com.example.payment.error.advice;
 
+import com.example.payment.error.exception.DuplicateTransactionException;
 import com.example.payment.error.exception.MerchantNonDeletableException;
 import com.example.payment.error.exception.MerchantNotActiveException;
 import com.example.payment.error.exception.MerchantNotFoundException;
@@ -24,5 +25,10 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(value = {MerchantNonDeletableException.class})
     ResponseEntity<Void> handleMerchantNonDeletable() {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+    @ExceptionHandler(value = {DuplicateTransactionException.class})
+    ResponseEntity<Void> handleDuplicateTransaction() {
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
 }

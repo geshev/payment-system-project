@@ -8,6 +8,7 @@ import com.example.payment.data.model.merchant.Merchant;
 import com.example.payment.data.model.merchant.MerchantStatus;
 import com.example.payment.data.model.transaction.Transaction;
 import com.example.payment.data.repo.TransactionRepository;
+import com.example.payment.error.exception.DuplicateTransactionException;
 import com.example.payment.error.exception.MerchantNotActiveException;
 import com.example.payment.error.exception.MerchantNotFoundException;
 import org.springframework.stereotype.Service;
@@ -29,13 +30,16 @@ public class TransactionService {
     }
 
     public void processTransaction(final Account account, final TransactionRequest request)
-            throws MerchantNotFoundException, MerchantNotActiveException {
+            throws MerchantNotFoundException, MerchantNotActiveException, DuplicateTransactionException {
         Merchant merchant = verifyAndGetMerchant(account, true);
 
         Transaction transaction = transactionMapper.toTransaction(request);
+
+        if (transactionRepository.existsByMerchantAndUuid(merchant, transaction.getUuid())) {
+            throw new DuplicateTransactionException();
+        }
+
         transaction.setMerchant(merchant);
-
-
 
         transactionRepository.save(transaction);
     }

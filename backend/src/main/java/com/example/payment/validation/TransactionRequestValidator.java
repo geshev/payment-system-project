@@ -21,7 +21,8 @@ public class TransactionRequestValidator implements ConstraintValidator<ValidTra
 
 
     @Override
-    public boolean isValid(TransactionRequest request, ConstraintValidatorContext constraintValidatorContext) {
+    public boolean isValid(final TransactionRequest request,
+                           final ConstraintValidatorContext constraintValidatorContext) {
         try {
             if (request.type() == null) {
                 return false;

@@ -3,6 +3,7 @@ package com.example.payment.controller;
 import com.example.payment.data.dto.transaction.TransactionInfo;
 import com.example.payment.data.dto.transaction.TransactionRequest;
 import com.example.payment.data.model.account.Account;
+import com.example.payment.error.exception.DuplicateTransactionException;
 import com.example.payment.error.exception.MerchantNotActiveException;
 import com.example.payment.error.exception.MerchantNotFoundException;
 import com.example.payment.service.TransactionService;
@@ -33,7 +34,7 @@ public class TransactionController {
     @PostMapping
     public ResponseEntity<Void> processTransaction(@AuthenticationPrincipal final Account account,
                                                    @RequestBody @Valid final TransactionRequest request)
-            throws MerchantNotFoundException, MerchantNotActiveException {
+            throws MerchantNotFoundException, MerchantNotActiveException, DuplicateTransactionException {
         transactionService.processTransaction(account, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

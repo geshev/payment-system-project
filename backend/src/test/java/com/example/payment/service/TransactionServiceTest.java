@@ -8,6 +8,7 @@ import com.example.payment.data.model.merchant.Merchant;
 import com.example.payment.data.model.merchant.MerchantStatus;
 import com.example.payment.data.model.transaction.*;
 import com.example.payment.data.repo.TransactionRepository;
+import com.example.payment.error.exception.DuplicateTransactionException;
 import com.example.payment.error.exception.MerchantNotActiveException;
 import com.example.payment.error.exception.MerchantNotFoundException;
 import org.junit.jupiter.api.Test;
@@ -54,8 +55,8 @@ public class TransactionServiceTest {
     private static final Long TEST_AUTHORIZE_TRANSACTION_ID = 1L;
     private static final AuthorizeTransaction TEST_AUTHORIZE_TRANSACTION = new AuthorizeTransaction();
     private static final TransactionRequest TEST_AUTHORIZE_REQUEST =
-            new TransactionRequest(TransactionType.AUTHORIZE, TEST_UUID.toString(), TEST_EMAIL, TEST_PHONE, TEST_REFERENCE_ID,
-                    TEST_AMOUNT);
+            new TransactionRequest(TransactionType.AUTHORIZE, TEST_UUID.toString(), TEST_EMAIL, TEST_PHONE,
+                    TEST_REFERENCE_ID, TEST_AMOUNT);
     private static final TransactionInfo TEST_AUTHORIZE_INFO =
             new TransactionInfo(TransactionType.AUTHORIZE, TEST_UUID, TEST_STATUS, TEST_EMAIL, TEST_PHONE,
                     TEST_REFERENCE_ID, TEST_AMOUNT);
@@ -64,8 +65,8 @@ public class TransactionServiceTest {
     private static final Long TEST_CHARGE_TRANSACTION_ID = 2L;
     private static final ChargeTransaction TEST_CHARGE_TRANSACTION = new ChargeTransaction();
     private static final TransactionRequest TEST_CHARGE_REQUEST =
-            new TransactionRequest(TransactionType.CHARGE, TEST_UUID.toString(), TEST_EMAIL, TEST_PHONE, TEST_REFERENCE_ID,
-                    TEST_AMOUNT);
+            new TransactionRequest(TransactionType.CHARGE, TEST_UUID.toString(), TEST_EMAIL, TEST_PHONE,
+                    TEST_REFERENCE_ID, TEST_AMOUNT);
     private static final TransactionInfo TEST_CHARGE_INFO =
             new TransactionInfo(TransactionType.CHARGE, TEST_UUID, TEST_STATUS, TEST_EMAIL, TEST_PHONE,
                     TEST_REFERENCE_ID, TEST_AMOUNT);
@@ -73,8 +74,8 @@ public class TransactionServiceTest {
     private static final Long TEST_REFUND_TRANSACTION_ID = 3L;
     private static final RefundTransaction TEST_REFUND_TRANSACTION = new RefundTransaction();
     private static final TransactionRequest TEST_REFUND_REQUEST =
-            new TransactionRequest(TransactionType.REFUND, TEST_UUID.toString(), TEST_EMAIL, TEST_PHONE, TEST_REFERENCE_ID,
-                    TEST_AMOUNT);
+            new TransactionRequest(TransactionType.REFUND, TEST_UUID.toString(), TEST_EMAIL, TEST_PHONE,
+                    TEST_REFERENCE_ID, TEST_AMOUNT);
     private static final TransactionInfo TEST_REFUND_INFO =
             new TransactionInfo(TransactionType.REFUND, TEST_UUID, TEST_STATUS, TEST_EMAIL, TEST_PHONE,
                     TEST_REFERENCE_ID, TEST_AMOUNT);
@@ -82,8 +83,8 @@ public class TransactionServiceTest {
     private static final Long TEST_REVERSAL_TRANSACTION_ID = 4L;
     private static final ReversalTransaction TEST_REVERSAL_TRANSACTION = new ReversalTransaction();
     private static final TransactionRequest TEST_REVERSAL_REQUEST =
-            new TransactionRequest(TransactionType.REVERSAL, TEST_UUID.toString(), TEST_EMAIL, TEST_PHONE, TEST_REFERENCE_ID,
-                    null);
+            new TransactionRequest(TransactionType.REVERSAL, TEST_UUID.toString(), TEST_EMAIL, TEST_PHONE,
+                    TEST_REFERENCE_ID, null);
     private static final TransactionInfo TEST_REVERSAL_INFO =
             new TransactionInfo(TransactionType.REVERSAL, TEST_UUID, TEST_STATUS, TEST_EMAIL, TEST_PHONE,
                     TEST_REFERENCE_ID, null);
@@ -97,8 +98,14 @@ public class TransactionServiceTest {
         TEST_AUTHORIZE_TRANSACTION.setAmount(TEST_AMOUNT);
 
         TEST_CHARGE_TRANSACTION.setId(TEST_CHARGE_TRANSACTION_ID);
+        TEST_CHARGE_TRANSACTION.setUuid(TEST_UUID);
+        TEST_CHARGE_TRANSACTION.setReferenceId(TEST_REFERENCE_ID);
+
         TEST_REFUND_TRANSACTION.setId(TEST_REFUND_TRANSACTION_ID);
+        TEST_REFUND_TRANSACTION.setUuid(TEST_UUID);
+
         TEST_REVERSAL_TRANSACTION.setId(TEST_REVERSAL_TRANSACTION_ID);
+        TEST_REVERSAL_TRANSACTION.setUuid(TEST_UUID);
     }
 
     @Mock
@@ -111,43 +118,55 @@ public class TransactionServiceTest {
     private TransactionService transactionService;
 
     @Test
-    void testAuthorizeTransactionProcess() throws MerchantNotFoundException, MerchantNotActiveException {
+    void testAuthorizeTransactionProcess() throws MerchantNotFoundException, MerchantNotActiveException,
+            DuplicateTransactionException {
         when(transactionMapper.toTransaction(TEST_AUTHORIZE_REQUEST)).thenReturn(TEST_AUTHORIZE_TRANSACTION);
 
         transactionService.processTransaction(TEST_ACCOUNT, TEST_AUTHORIZE_REQUEST);
 
         verify(transactionMapper, times(1)).toTransaction(TEST_AUTHORIZE_REQUEST);
         verify(transactionRepository, times(1)).save(TEST_AUTHORIZE_TRANSACTION);
+        verify(transactionRepository, times(1))
+                .existsByMerchantAndUuid(TEST_MERCHANT, TEST_UUID);
     }
 
     @Test
-    void testChargeTransactionProcess() throws MerchantNotFoundException, MerchantNotActiveException {
+    void testChargeTransactionProcess() throws MerchantNotFoundException, MerchantNotActiveException,
+            DuplicateTransactionException {
         when(transactionMapper.toTransaction(TEST_CHARGE_REQUEST)).thenReturn(TEST_CHARGE_TRANSACTION);
 
         transactionService.processTransaction(TEST_ACCOUNT, TEST_CHARGE_REQUEST);
 
         verify(transactionMapper, times(1)).toTransaction(TEST_CHARGE_REQUEST);
         verify(transactionRepository, times(1)).save(TEST_CHARGE_TRANSACTION);
+        verify(transactionRepository, times(1))
+                .existsByMerchantAndUuid(TEST_MERCHANT, TEST_UUID);
     }
 
     @Test
-    void testRefundTransactionProcess() throws MerchantNotFoundException, MerchantNotActiveException {
+    void testRefundTransactionProcess() throws MerchantNotFoundException, MerchantNotActiveException,
+            DuplicateTransactionException {
         when(transactionMapper.toTransaction(TEST_REFUND_REQUEST)).thenReturn(TEST_REFUND_TRANSACTION);
 
         transactionService.processTransaction(TEST_ACCOUNT, TEST_REFUND_REQUEST);
 
         verify(transactionMapper, times(1)).toTransaction(TEST_REFUND_REQUEST);
         verify(transactionRepository, times(1)).save(TEST_REFUND_TRANSACTION);
+        verify(transactionRepository, times(1))
+                .existsByMerchantAndUuid(TEST_MERCHANT, TEST_UUID);
     }
 
     @Test
-    void testReversalTransactionProcess() throws MerchantNotFoundException, MerchantNotActiveException {
+    void testReversalTransactionProcess() throws MerchantNotFoundException, MerchantNotActiveException,
+            DuplicateTransactionException {
         when(transactionMapper.toTransaction(TEST_REVERSAL_REQUEST)).thenReturn(TEST_REVERSAL_TRANSACTION);
 
         transactionService.processTransaction(TEST_ACCOUNT, TEST_REVERSAL_REQUEST);
 
         verify(transactionMapper, times(1)).toTransaction(TEST_REVERSAL_REQUEST);
         verify(transactionRepository, times(1)).save(TEST_REVERSAL_TRANSACTION);
+        verify(transactionRepository, times(1))
+                .existsByMerchantAndUuid(TEST_MERCHANT, TEST_UUID);
     }
 
     @Test
@@ -187,5 +206,14 @@ public class TransactionServiceTest {
     void testGetTransactionsMerchantNotFound() {
         assertThrows(MerchantNotFoundException.class, () ->
                 transactionService.getTransactions(EMPTY_ACCOUNT));
+    }
+
+    @Test
+    void testTransactionConflict() {
+        when(transactionMapper.toTransaction(TEST_AUTHORIZE_REQUEST)).thenReturn(TEST_AUTHORIZE_TRANSACTION);
+        when(transactionRepository.existsByMerchantAndUuid(TEST_MERCHANT, TEST_UUID)).thenReturn(true);
+
+        assertThrows(DuplicateTransactionException.class, () ->
+                transactionService.processTransaction(TEST_ACCOUNT, TEST_AUTHORIZE_REQUEST));
     }
 }

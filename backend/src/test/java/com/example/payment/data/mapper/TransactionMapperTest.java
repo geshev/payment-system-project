@@ -2,7 +2,6 @@ package com.example.payment.data.mapper;
 
 import com.example.payment.data.dto.transaction.TransactionInfo;
 import com.example.payment.data.dto.transaction.TransactionRequest;
-import com.example.payment.data.mapper.TransactionMapperImpl;
 import com.example.payment.data.model.transaction.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,6 +113,7 @@ public class TransactionMapperTest {
     }
 
     private TransactionRequest createTransactionRequest(final TransactionType type) {
-        return new TransactionRequest(type, TEST_UUID.toString(), TEST_EMAIL, TEST_PHONE, TEST_REFERENCE_ID, TEST_AMOUNT);
+        return new TransactionRequest(type, TEST_UUID.toString(), TEST_EMAIL, TEST_PHONE, TEST_REFERENCE_ID,
+                TEST_AMOUNT);
     }
 }
