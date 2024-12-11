@@ -11,9 +11,11 @@ import com.example.payment.data.repo.TransactionRepository;
 import com.example.payment.error.exception.DuplicateTransactionException;
 import com.example.payment.error.exception.MerchantNotActiveException;
 import com.example.payment.error.exception.MerchantNotFoundException;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,13 +24,18 @@ import java.util.Optional;
 @Transactional
 public class TransactionService {
 
+    private static final BigDecimal NEGATIVE_AMOUNT = BigDecimal.valueOf(-1L);
+
     private final TransactionMapper transactionMapper;
     private final TransactionRepository transactionRepository;
+    private final MerchantService merchantService;
 
     public TransactionService(final TransactionMapper transactionMapper,
-                              final TransactionRepository transactionRepository) {
+                              final TransactionRepository transactionRepository,
+                              @Lazy final MerchantService merchantService) {
         this.transactionMapper = transactionMapper;
         this.transactionRepository = transactionRepository;
+        this.merchantService = merchantService;
     }
 
     public void processTransaction(final Account account, final TransactionRequest request)
@@ -50,11 +57,21 @@ public class TransactionService {
             case CHARGE, REVERSAL -> {
                 Optional<Transaction> auth = transactionRepository.findReferencedTransaction(
                         AuthorizeTransaction.class, merchant, transaction.getReferenceId());
-                if (auth.isPresent() && auth.get().getStatus() == TransactionStatus.APPROVED) {
-                    transaction.setStatus(TransactionStatus.APPROVED);
+                if (auth.isPresent()) {
                     if (transaction.getType() == TransactionType.REVERSAL) {
+                        transaction.setStatus(TransactionStatus.APPROVED);
                         auth.get().setStatus(TransactionStatus.REVERSED);
                         transactions.add(auth.get());
+                    } else {
+                        // Check if we already have a charge for the AUTHORIZE transaction
+                        Optional<Transaction> charge = transactionRepository.findReferencedTransaction(
+                                ChargeTransaction.class, merchant, transaction.getReferenceId());
+                        if (charge.isPresent() && charge.get().getStatus() == TransactionStatus.APPROVED) {
+                            transaction.setStatus(TransactionStatus.ERROR);
+                        } else {
+                            ChargeTransaction chargeTransaction = (ChargeTransaction) transaction;
+                            merchantService.updateMerchantTotalSum(merchant, chargeTransaction.getAmount());
+                        }
                     }
                 } else {
                     transaction.setStatus(TransactionStatus.ERROR);
@@ -63,10 +80,19 @@ public class TransactionService {
             case REFUND -> {
                 Optional<Transaction> charge = transactionRepository.findReferencedTransaction(
                         ChargeTransaction.class, merchant, transaction.getReferenceId());
-                if (charge.isPresent() && charge.get().getStatus() == TransactionStatus.APPROVED) {
-                    transaction.setStatus(TransactionStatus.APPROVED);
-                    charge.get().setStatus(TransactionStatus.REFUNDED);
-                    transactions.add(charge.get());
+                if (charge.isPresent()) {
+                    ChargeTransaction chargeTransaction = (ChargeTransaction) charge.get();
+                    RefundTransaction refundTransaction = (RefundTransaction) transaction;
+                    if (chargeTransaction.getAmount().equals(refundTransaction.getAmount())) {
+                        transaction.setStatus(TransactionStatus.APPROVED);
+                        chargeTransaction.setStatus(TransactionStatus.REFUNDED);
+                        transactions.add(chargeTransaction);
+
+                        merchantService.updateMerchantTotalSum(merchant,
+                                refundTransaction.getAmount().multiply(NEGATIVE_AMOUNT));
+                    } else {
+                        transaction.setStatus(TransactionStatus.ERROR);
+                    }
                 } else {
                     transaction.setStatus(TransactionStatus.ERROR);
                 }

@@ -52,6 +52,7 @@ public class TransactionServiceTest {
     private static final String TEST_PHONE = "+19090909090";
     private static final String TEST_REFERENCE_ID = "090909";
     private static final BigDecimal TEST_AMOUNT = new BigDecimal("10.10");
+    private static final BigDecimal TEST_NEGATIVE_AMOUNT = new BigDecimal("-10.10");
 
     private static final Long TEST_AUTHORIZE_TRANSACTION_ID = 1L;
     private static final AuthorizeTransaction TEST_AUTHORIZE_TRANSACTION = new AuthorizeTransaction();
@@ -103,10 +104,12 @@ public class TransactionServiceTest {
         TEST_CHARGE_TRANSACTION.setUuid(TEST_UUID);
         TEST_CHARGE_TRANSACTION.setStatus(TransactionStatus.APPROVED);
         TEST_CHARGE_TRANSACTION.setReferenceId(TEST_REFERENCE_ID);
+        TEST_CHARGE_TRANSACTION.setAmount(TEST_AMOUNT);
 
         TEST_REFUND_TRANSACTION.setId(TEST_REFUND_TRANSACTION_ID);
         TEST_REFUND_TRANSACTION.setUuid(TEST_UUID);
         TEST_REFUND_TRANSACTION.setReferenceId(TEST_REFERENCE_ID);
+        TEST_REFUND_TRANSACTION.setAmount(TEST_AMOUNT);
 
         TEST_REVERSAL_TRANSACTION.setId(TEST_REVERSAL_TRANSACTION_ID);
         TEST_REVERSAL_TRANSACTION.setUuid(TEST_UUID);
@@ -118,6 +121,9 @@ public class TransactionServiceTest {
 
     @Mock
     private TransactionRepository transactionRepository;
+
+    @Mock
+    private MerchantService merchantService;
 
     @InjectMocks
     private TransactionService transactionService;
@@ -145,12 +151,45 @@ public class TransactionServiceTest {
         transactionService.processTransaction(TEST_ACCOUNT, TEST_CHARGE_REQUEST);
 
         verify(transactionMapper, times(1)).toTransaction(TEST_CHARGE_REQUEST);
+        verify(merchantService, times(1)).updateMerchantTotalSum(
+                TEST_MERCHANT, TEST_AMOUNT);
         verify(transactionRepository, times(1)).saveAll(
                 List.of(TEST_CHARGE_TRANSACTION));
         verify(transactionRepository, times(1))
                 .existsByMerchantAndUuid(TEST_MERCHANT, TEST_UUID);
         verify(transactionRepository, times(1)).findReferencedTransaction(
                 AuthorizeTransaction.class, TEST_MERCHANT, TEST_REFERENCE_ID);
+        verify(transactionRepository, times(1)).findReferencedTransaction(
+                ChargeTransaction.class, TEST_MERCHANT, TEST_REFERENCE_ID);
+    }
+
+    @Test
+    void testDoubleChargeTransactionProcess() throws MerchantNotFoundException, MerchantNotActiveException,
+            DuplicateTransactionException {
+        when(transactionMapper.toTransaction(TEST_CHARGE_REQUEST)).thenReturn(TEST_CHARGE_TRANSACTION);
+        when(transactionRepository.findReferencedTransaction(AuthorizeTransaction.class,
+                TEST_MERCHANT, TEST_REFERENCE_ID)).thenReturn(Optional.of(TEST_AUTHORIZE_TRANSACTION));
+        when(transactionRepository.findReferencedTransaction(ChargeTransaction.class,
+                TEST_MERCHANT, TEST_REFERENCE_ID)).thenReturn(Optional.of(TEST_CHARGE_TRANSACTION));
+
+        transactionService.processTransaction(TEST_ACCOUNT, TEST_CHARGE_REQUEST);
+
+        verify(transactionMapper, times(1)).toTransaction(TEST_CHARGE_REQUEST);
+        verify(merchantService, never()).updateMerchantTotalSum(TEST_MERCHANT, TEST_AMOUNT);
+    }
+
+    @Test
+    void testChargeTransactionProcessNoAuthorize() throws MerchantNotFoundException, MerchantNotActiveException,
+            DuplicateTransactionException {
+        when(transactionMapper.toTransaction(TEST_CHARGE_REQUEST)).thenReturn(TEST_CHARGE_TRANSACTION);
+        when(transactionRepository.findReferencedTransaction(AuthorizeTransaction.class,
+                TEST_MERCHANT, TEST_REFERENCE_ID)).thenReturn(Optional.empty());
+
+        transactionService.processTransaction(TEST_ACCOUNT, TEST_CHARGE_REQUEST);
+
+        verify(merchantService, never()).updateMerchantTotalSum(TEST_MERCHANT, TEST_AMOUNT);
+        verify(transactionRepository, times(1)).saveAll(
+                List.of(TEST_CHARGE_TRANSACTION));
     }
 
     @Test
@@ -163,12 +202,28 @@ public class TransactionServiceTest {
         transactionService.processTransaction(TEST_ACCOUNT, TEST_REFUND_REQUEST);
 
         verify(transactionMapper, times(1)).toTransaction(TEST_REFUND_REQUEST);
+        verify(merchantService, times(1)).updateMerchantTotalSum(
+                TEST_MERCHANT, TEST_NEGATIVE_AMOUNT);
         verify(transactionRepository, times(1)).saveAll(
                 List.of(TEST_REFUND_TRANSACTION, TEST_CHARGE_TRANSACTION));
         verify(transactionRepository, times(1))
                 .existsByMerchantAndUuid(TEST_MERCHANT, TEST_UUID);
         verify(transactionRepository, times(1)).findReferencedTransaction(
                 ChargeTransaction.class, TEST_MERCHANT, TEST_REFERENCE_ID);
+    }
+
+    @Test
+    void testRefundTransactionProcessNoCharge() throws MerchantNotFoundException, MerchantNotActiveException,
+            DuplicateTransactionException {
+        when(transactionMapper.toTransaction(TEST_REFUND_REQUEST)).thenReturn(TEST_REFUND_TRANSACTION);
+        when(transactionRepository.findReferencedTransaction(ChargeTransaction.class,
+                TEST_MERCHANT, TEST_REFERENCE_ID)).thenReturn(Optional.empty());
+
+        transactionService.processTransaction(TEST_ACCOUNT, TEST_REFUND_REQUEST);
+
+        verify(merchantService, never()).updateMerchantTotalSum(TEST_MERCHANT, TEST_NEGATIVE_AMOUNT);
+        verify(transactionRepository, times(1)).saveAll(
+                List.of(TEST_REFUND_TRANSACTION));
     }
 
     @Test

@@ -21,7 +21,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     boolean existsByMerchantAndUuid(Merchant merchant, UUID uuid);
 
     @Query("SELECT t from Transaction t WHERE TYPE(t) = :type"
-            + " and t.merchant = :merchant and t.referenceId = :referenceId")
+            + " and t.merchant = :merchant and t.referenceId = :referenceId and t.status = 'APPROVED'")
     Optional<Transaction> findReferencedTransaction(@Param("type") Class<? extends Transaction> type,
                                                     @Param("merchant") Merchant merchant,
                                                     @Param("referenceId") String referenceId);

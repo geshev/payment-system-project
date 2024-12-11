@@ -9,10 +9,12 @@ import com.example.payment.data.repo.MerchantRepository;
 import com.example.payment.error.exception.MerchantNonDeletableException;
 import com.example.payment.error.exception.MerchantNotFoundException;
 import com.example.payment.util.CSVUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -25,7 +27,7 @@ public class MerchantService {
     private final TransactionService transactionService;
 
     public MerchantService(final MerchantRepository merchantRepository, final MerchantMapper merchantMapper,
-                           final AccountService accountService, final TransactionService transactionService)
+                           final AccountService accountService, @Lazy final TransactionService transactionService)
             throws IOException {
         this.merchantRepository = merchantRepository;
         this.merchantMapper = merchantMapper;
@@ -74,5 +76,11 @@ public class MerchantService {
             accountService.removeMerchantFromAccount(merchant);
             merchantRepository.delete(merchant);
         }
+    }
+
+    void updateMerchantTotalSum(Merchant merchant, BigDecimal update) {
+        Merchant updatedMerchant = merchantRepository.findMerchantForTotalSumUpdate(merchant.getId());
+        updatedMerchant.setTotalTransactionSum(updatedMerchant.getTotalTransactionSum().add(update));
+        merchantRepository.save(updatedMerchant);
     }
 }
