@@ -1,0 +1,33 @@
+services:
+  database:
+    image: gesshev/payment-system-db:latest
+    container_name: payment-system-db
+    ports:
+      - "5432:5432"
+    networks:
+      - paymentsystem
+
+  backend:
+    image: gesshev/payment-system-backend:latest
+    container_name: payment-system-backend
+    ports:
+      - "8080:8080"
+    environment:
+      DATA: jdbc:postgresql://payment-system-db:5432/payment
+    networks:
+      - paymentsystem
+
+  frontend:
+    image: gesshev/payment-system-frontend:latest
+    container_name: payment-system-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      API: https://payment-system-backend:8080/
+    networks:
+      - paymentsystem
+
+networks:
+  paymentsystem:
+    external: true
+    name: paymentsystem
