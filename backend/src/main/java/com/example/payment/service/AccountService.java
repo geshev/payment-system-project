@@ -46,7 +46,7 @@ public class AccountService {
         return account.getRole().name();
     }
 
-    public void removeMerchantFromAccount(final Merchant merchant) {
+    void removeMerchantFromAccount(final Merchant merchant) {
         Optional<Account> accountOpt = accountRepository.findByMerchant(merchant);
         if (accountOpt.isPresent()) {
             Account account = accountOpt.get();

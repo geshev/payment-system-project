@@ -1,4 +1,4 @@
-package com.example.payment.mapper.transaction;
+package com.example.payment.data.mapper;
 
 import com.example.payment.data.dto.transaction.TransactionInfo;
 import com.example.payment.data.dto.transaction.TransactionRequest;

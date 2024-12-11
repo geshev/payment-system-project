@@ -7,7 +7,6 @@ import com.example.payment.data.model.account.Account;
 import com.example.payment.data.model.merchant.Merchant;
 import com.example.payment.data.model.merchant.MerchantStatus;
 import com.example.payment.data.model.transaction.Transaction;
-import com.example.payment.data.model.transaction.TransactionStatus;
 import com.example.payment.data.repo.TransactionRepository;
 import com.example.payment.error.exception.MerchantNotActiveException;
 import com.example.payment.error.exception.MerchantNotFoundException;
@@ -34,8 +33,9 @@ public class TransactionService {
         Merchant merchant = verifyAndGetMerchant(account, true);
 
         Transaction transaction = transactionMapper.toTransaction(request);
-        transaction.setStatus(TransactionStatus.ERROR);
         transaction.setMerchant(merchant);
+
+
 
         transactionRepository.save(transaction);
     }

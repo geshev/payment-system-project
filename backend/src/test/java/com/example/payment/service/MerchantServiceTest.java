@@ -1,4 +1,4 @@
-package com.example.payment.unit.merchant;
+package com.example.payment.service;
 
 import com.example.payment.data.dto.merchant.MerchantInfo;
 import com.example.payment.data.dto.merchant.MerchantUpdate;
@@ -8,9 +8,6 @@ import com.example.payment.data.model.merchant.MerchantStatus;
 import com.example.payment.data.repo.MerchantRepository;
 import com.example.payment.error.exception.MerchantNonDeletableException;
 import com.example.payment.error.exception.MerchantNotFoundException;
-import com.example.payment.service.AccountService;
-import com.example.payment.service.MerchantService;
-import com.example.payment.service.TransactionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
