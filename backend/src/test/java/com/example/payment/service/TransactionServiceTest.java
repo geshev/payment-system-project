@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -92,6 +93,7 @@ public class TransactionServiceTest {
     static {
         TEST_AUTHORIZE_TRANSACTION.setId(TEST_AUTHORIZE_TRANSACTION_ID);
         TEST_AUTHORIZE_TRANSACTION.setUuid(TEST_UUID);
+        TEST_AUTHORIZE_TRANSACTION.setStatus(TransactionStatus.APPROVED);
         TEST_AUTHORIZE_TRANSACTION.setCustomerEmail(TEST_EMAIL);
         TEST_AUTHORIZE_TRANSACTION.setCustomerPhone(TEST_PHONE);
         TEST_AUTHORIZE_TRANSACTION.setReferenceId(TEST_REFERENCE_ID);
@@ -134,6 +136,8 @@ public class TransactionServiceTest {
     void testChargeTransactionProcess() throws MerchantNotFoundException, MerchantNotActiveException,
             DuplicateTransactionException {
         when(transactionMapper.toTransaction(TEST_CHARGE_REQUEST)).thenReturn(TEST_CHARGE_TRANSACTION);
+        when(transactionRepository.findMatchingAuthorizeTransaction(AuthorizeTransaction.class,
+                TEST_MERCHANT, TEST_REFERENCE_ID)).thenReturn(Optional.of(TEST_AUTHORIZE_TRANSACTION));
 
         transactionService.processTransaction(TEST_ACCOUNT, TEST_CHARGE_REQUEST);
 
@@ -141,6 +145,8 @@ public class TransactionServiceTest {
         verify(transactionRepository, times(1)).save(TEST_CHARGE_TRANSACTION);
         verify(transactionRepository, times(1))
                 .existsByMerchantAndUuid(TEST_MERCHANT, TEST_UUID);
+        verify(transactionRepository, times(1)).findMatchingAuthorizeTransaction(
+                AuthorizeTransaction.class, TEST_MERCHANT, TEST_REFERENCE_ID);
     }
 
     @Test

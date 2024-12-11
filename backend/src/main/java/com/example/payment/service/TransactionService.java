@@ -6,7 +6,9 @@ import com.example.payment.data.mapper.TransactionMapper;
 import com.example.payment.data.model.account.Account;
 import com.example.payment.data.model.merchant.Merchant;
 import com.example.payment.data.model.merchant.MerchantStatus;
+import com.example.payment.data.model.transaction.AuthorizeTransaction;
 import com.example.payment.data.model.transaction.Transaction;
+import com.example.payment.data.model.transaction.TransactionStatus;
 import com.example.payment.data.repo.TransactionRepository;
 import com.example.payment.error.exception.DuplicateTransactionException;
 import com.example.payment.error.exception.MerchantNotActiveException;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -40,6 +43,25 @@ public class TransactionService {
         }
 
         transaction.setMerchant(merchant);
+
+        switch (transaction.getType()) {
+            case AUTHORIZE -> transaction.setStatus(TransactionStatus.APPROVED);
+            case CHARGE -> {
+                Optional<Transaction> auth = transactionRepository.findMatchingAuthorizeTransaction(
+                        AuthorizeTransaction.class, merchant, transaction.getReferenceId());
+                if (auth.isPresent() && auth.get().getStatus() == TransactionStatus.APPROVED) {
+                    transaction.setStatus(TransactionStatus.APPROVED);
+                } else {
+                    transaction.setStatus(TransactionStatus.ERROR);
+                }
+            }
+            case REFUND -> {
+
+            }
+            case REVERSAL -> {
+
+            }
+        }
 
         transactionRepository.save(transaction);
     }
