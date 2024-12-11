@@ -1,9 +1,10 @@
 import { deleteMerchantAction, updateMerchantAction } from "@/actions/merchants";
-import { deleteMerchant, getMerchant } from "@/service/merchant-service";
+import { getMerchant } from "@/service/merchant-service";
 import { MerchantStatus } from "@/types/types";
 
-export default async function Merchant({ params }: { params: { name: string; }; }) {
-  const merchant = await getMerchant(params.name);
+export default async function Merchant({ params, }: { params: Promise<{ name: string; }>; }) {
+  const name = (await params).name;
+  const merchant = await getMerchant(name);
 
   return (
     <main className="container">
@@ -22,7 +23,7 @@ export default async function Merchant({ params }: { params: { name: string; }; 
           <tbody>
             <tr>
               <td>
-                <input type="hidden" name="name-id" defaultValue={params.name} />
+                <input type="hidden" name="name-id" defaultValue={name} />
                 <input type="text" name="name" defaultValue={merchant.name} className="w-100" />
               </td>
               <td>
@@ -47,7 +48,7 @@ export default async function Merchant({ params }: { params: { name: string; }; 
         <button type="submit" className="main-color text-white btn btn-primary border-0">Update</button>
       </form>
       <form action={deleteMerchantAction} className="w-100 d-flex justify-content-end">
-        <input type="hidden" name="name-id" defaultValue={params.name} />
+        <input type="hidden" name="name-id" defaultValue={name} />
         <button type="submit" className="del-btn text-white btn btn-primary border-0">Delete</button>
       </form>
     </main>
