@@ -11,6 +11,7 @@ import com.example.payment.data.repo.TransactionRepository;
 import com.example.payment.error.exception.DuplicateTransactionException;
 import com.example.payment.error.exception.MerchantNotActiveException;
 import com.example.payment.error.exception.MerchantNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -91,7 +92,20 @@ public class TransactionServiceTest {
             new TransactionInfo(TransactionType.REVERSAL, TEST_UUID, TEST_STATUS, TEST_EMAIL, TEST_PHONE,
                     TEST_REFERENCE_ID, null);
 
-    static {
+    @Mock
+    private TransactionMapper transactionMapper;
+
+    @Mock
+    private TransactionRepository transactionRepository;
+
+    @Mock
+    private MerchantService merchantService;
+
+    @InjectMocks
+    private TransactionService transactionService;
+
+    @BeforeEach
+    void resetTestTransactions() {
         TEST_AUTHORIZE_TRANSACTION.setId(TEST_AUTHORIZE_TRANSACTION_ID);
         TEST_AUTHORIZE_TRANSACTION.setUuid(TEST_UUID);
         TEST_AUTHORIZE_TRANSACTION.setStatus(TransactionStatus.APPROVED);
@@ -115,18 +129,6 @@ public class TransactionServiceTest {
         TEST_REVERSAL_TRANSACTION.setUuid(TEST_UUID);
         TEST_REVERSAL_TRANSACTION.setReferenceId(TEST_REFERENCE_ID);
     }
-
-    @Mock
-    private TransactionMapper transactionMapper;
-
-    @Mock
-    private TransactionRepository transactionRepository;
-
-    @Mock
-    private MerchantService merchantService;
-
-    @InjectMocks
-    private TransactionService transactionService;
 
     @Test
     void testAuthorizeTransactionProcess() throws MerchantNotFoundException, MerchantNotActiveException,

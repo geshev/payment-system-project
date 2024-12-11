@@ -78,7 +78,7 @@ public class MerchantService {
         }
     }
 
-    void updateMerchantTotalSum(Merchant merchant, BigDecimal update) {
+    void updateMerchantTotalSum(final Merchant merchant, final BigDecimal update) {
         Merchant updatedMerchant = merchantRepository.findMerchantForTotalSumUpdate(merchant.getId());
         updatedMerchant.setTotalTransactionSum(updatedMerchant.getTotalTransactionSum().add(update));
         merchantRepository.save(updatedMerchant);
