@@ -114,6 +114,6 @@ public class TransactionMapperTest {
     }
 
     private TransactionRequest createTransactionRequest(final TransactionType type) {
-        return new TransactionRequest(type, TEST_UUID, TEST_EMAIL, TEST_PHONE, TEST_REFERENCE_ID, TEST_AMOUNT);
+        return new TransactionRequest(type, TEST_UUID.toString(), TEST_EMAIL, TEST_PHONE, TEST_REFERENCE_ID, TEST_AMOUNT);
     }
 }
