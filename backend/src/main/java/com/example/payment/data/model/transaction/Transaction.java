@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -36,6 +37,9 @@ public abstract class Transaction {
 
     @Column(nullable = false)
     private String referenceId;
+
+    @Column(nullable = false)
+    private LocalDateTime created;
 
     @ManyToOne
     @JoinColumn(nullable = false)

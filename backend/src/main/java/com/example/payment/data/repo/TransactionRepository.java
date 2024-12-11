@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,6 +20,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     boolean existsByMerchant(Merchant merchant);
 
     boolean existsByMerchantAndUuid(Merchant merchant, UUID uuid);
+
+    void deleteAllByCreatedBefore(LocalDateTime threshold);
 
     @Query("SELECT t from Transaction t WHERE TYPE(t) = :type"
             + " and t.merchant = :merchant and t.referenceId = :referenceId and t.status = 'APPROVED'")

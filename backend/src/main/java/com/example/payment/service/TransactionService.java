@@ -12,10 +12,12 @@ import com.example.payment.error.exception.DuplicateTransactionException;
 import com.example.payment.error.exception.MerchantNotActiveException;
 import com.example.payment.error.exception.MerchantNotFoundException;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -51,6 +53,7 @@ public class TransactionService {
         }
 
         transaction.setMerchant(merchant);
+        transaction.setCreated(LocalDateTime.now());
 
         switch (transaction.getType()) {
             case AUTHORIZE -> transaction.setStatus(TransactionStatus.APPROVED);
@@ -123,5 +126,10 @@ public class TransactionService {
             throw new MerchantNotActiveException();
         }
         return merchant;
+    }
+
+    @Scheduled(cron = "0 0 * * * *")
+    void clearOldTransactions() {
+        transactionRepository.deleteAllByCreatedBefore(LocalDateTime.now().minusHours(1));
     }
 }
