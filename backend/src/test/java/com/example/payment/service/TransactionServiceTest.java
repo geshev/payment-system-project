@@ -101,13 +101,16 @@ public class TransactionServiceTest {
 
         TEST_CHARGE_TRANSACTION.setId(TEST_CHARGE_TRANSACTION_ID);
         TEST_CHARGE_TRANSACTION.setUuid(TEST_UUID);
+        TEST_CHARGE_TRANSACTION.setStatus(TransactionStatus.APPROVED);
         TEST_CHARGE_TRANSACTION.setReferenceId(TEST_REFERENCE_ID);
 
         TEST_REFUND_TRANSACTION.setId(TEST_REFUND_TRANSACTION_ID);
         TEST_REFUND_TRANSACTION.setUuid(TEST_UUID);
+        TEST_REFUND_TRANSACTION.setReferenceId(TEST_REFERENCE_ID);
 
         TEST_REVERSAL_TRANSACTION.setId(TEST_REVERSAL_TRANSACTION_ID);
         TEST_REVERSAL_TRANSACTION.setUuid(TEST_UUID);
+        TEST_REVERSAL_TRANSACTION.setReferenceId(TEST_REFERENCE_ID);
     }
 
     @Mock
@@ -127,7 +130,7 @@ public class TransactionServiceTest {
         transactionService.processTransaction(TEST_ACCOUNT, TEST_AUTHORIZE_REQUEST);
 
         verify(transactionMapper, times(1)).toTransaction(TEST_AUTHORIZE_REQUEST);
-        verify(transactionRepository, times(1)).save(TEST_AUTHORIZE_TRANSACTION);
+        verify(transactionRepository, times(1)).saveAll(List.of(TEST_AUTHORIZE_TRANSACTION));
         verify(transactionRepository, times(1))
                 .existsByMerchantAndUuid(TEST_MERCHANT, TEST_UUID);
     }
@@ -136,16 +139,17 @@ public class TransactionServiceTest {
     void testChargeTransactionProcess() throws MerchantNotFoundException, MerchantNotActiveException,
             DuplicateTransactionException {
         when(transactionMapper.toTransaction(TEST_CHARGE_REQUEST)).thenReturn(TEST_CHARGE_TRANSACTION);
-        when(transactionRepository.findMatchingAuthorizeTransaction(AuthorizeTransaction.class,
+        when(transactionRepository.findReferencedTransaction(AuthorizeTransaction.class,
                 TEST_MERCHANT, TEST_REFERENCE_ID)).thenReturn(Optional.of(TEST_AUTHORIZE_TRANSACTION));
 
         transactionService.processTransaction(TEST_ACCOUNT, TEST_CHARGE_REQUEST);
 
         verify(transactionMapper, times(1)).toTransaction(TEST_CHARGE_REQUEST);
-        verify(transactionRepository, times(1)).save(TEST_CHARGE_TRANSACTION);
+        verify(transactionRepository, times(1)).saveAll(
+                List.of(TEST_CHARGE_TRANSACTION));
         verify(transactionRepository, times(1))
                 .existsByMerchantAndUuid(TEST_MERCHANT, TEST_UUID);
-        verify(transactionRepository, times(1)).findMatchingAuthorizeTransaction(
+        verify(transactionRepository, times(1)).findReferencedTransaction(
                 AuthorizeTransaction.class, TEST_MERCHANT, TEST_REFERENCE_ID);
     }
 
@@ -153,26 +157,36 @@ public class TransactionServiceTest {
     void testRefundTransactionProcess() throws MerchantNotFoundException, MerchantNotActiveException,
             DuplicateTransactionException {
         when(transactionMapper.toTransaction(TEST_REFUND_REQUEST)).thenReturn(TEST_REFUND_TRANSACTION);
+        when(transactionRepository.findReferencedTransaction(ChargeTransaction.class,
+                TEST_MERCHANT, TEST_REFERENCE_ID)).thenReturn(Optional.of(TEST_CHARGE_TRANSACTION));
 
         transactionService.processTransaction(TEST_ACCOUNT, TEST_REFUND_REQUEST);
 
         verify(transactionMapper, times(1)).toTransaction(TEST_REFUND_REQUEST);
-        verify(transactionRepository, times(1)).save(TEST_REFUND_TRANSACTION);
+        verify(transactionRepository, times(1)).saveAll(
+                List.of(TEST_REFUND_TRANSACTION, TEST_CHARGE_TRANSACTION));
         verify(transactionRepository, times(1))
                 .existsByMerchantAndUuid(TEST_MERCHANT, TEST_UUID);
+        verify(transactionRepository, times(1)).findReferencedTransaction(
+                ChargeTransaction.class, TEST_MERCHANT, TEST_REFERENCE_ID);
     }
 
     @Test
     void testReversalTransactionProcess() throws MerchantNotFoundException, MerchantNotActiveException,
             DuplicateTransactionException {
         when(transactionMapper.toTransaction(TEST_REVERSAL_REQUEST)).thenReturn(TEST_REVERSAL_TRANSACTION);
+        when(transactionRepository.findReferencedTransaction(AuthorizeTransaction.class,
+                TEST_MERCHANT, TEST_REFERENCE_ID)).thenReturn(Optional.of(TEST_AUTHORIZE_TRANSACTION));
 
         transactionService.processTransaction(TEST_ACCOUNT, TEST_REVERSAL_REQUEST);
 
         verify(transactionMapper, times(1)).toTransaction(TEST_REVERSAL_REQUEST);
-        verify(transactionRepository, times(1)).save(TEST_REVERSAL_TRANSACTION);
+        verify(transactionRepository, times(1)).saveAll(
+                List.of(TEST_REVERSAL_TRANSACTION, TEST_AUTHORIZE_TRANSACTION));
         verify(transactionRepository, times(1))
                 .existsByMerchantAndUuid(TEST_MERCHANT, TEST_UUID);
+        verify(transactionRepository, times(1)).findReferencedTransaction(
+                AuthorizeTransaction.class, TEST_MERCHANT, TEST_REFERENCE_ID);
     }
 
     @Test
