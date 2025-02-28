@@ -1,3 +1,3 @@
 # payment-system-project
 
-To run just execute the run.sh script docker should take care of the rest
+To run the project just execute the run.sh script and docker should take care of the rest.
